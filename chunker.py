@@ -27,6 +27,10 @@ class Chunker(object):
         self.file = data_file
         self.file_object = open(data_file, "rb") 
 
+    def close(self):
+        """Simple method to close data file connection"""
+        self.file_object.close()
+
     def next_chunk(self):
         """
         Read method that returns chunks. This function is responsible for both

@@ -66,3 +66,14 @@ def test_end_of_file(small_tmpfile):
     assert data3 == b""
     assert data4 == b""
 
+
+def test_close_file(read_tmpfile):
+    # create a `Chunker` object and read some random data
+    chunker = Chunker(read_tmpfile.name)
+    data = chunker.next_chunk()
+
+    # now we close the file and check that a new read raises an error
+    chunker.close()
+    with pytest.raises(ValueError):
+        data = chunker.next_chunk()
+
