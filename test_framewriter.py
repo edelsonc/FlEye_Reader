@@ -21,11 +21,33 @@ def write_file():
     t = tempfile.NamedTemporaryFile()
     return t
 
-def test_FrameWriter_init(write_file):
-    framewriter = FrameWriter(write_file.name)
 
-    assert framewriter.frame_length == 1012
+@pytest.fixture
+def delimiters():
+    """
+    Header and footer for frames
+    """
+    return (b'\xbf' * 12, b'\xef' * 16)
+
+
+def test_FrameWriter_init(write_file, delimiters):
+    # first we check that it creates an instance with reasonable defaults
+    framewriter = FrameWriter(write_file.name, delimiters[0], delimiters[1])
+
+    assert framewriter.frame_length == 1024
     assert framewriter.write_file == write_file.name
+    assert framewriter.current_frame == None
+    assert framewriter.past_frame_ids == []
+    assert framewriter.frame_header == delimiters[0]
+    assert framewriter.frame_footer == delimiters[1]
 
+    # next we ensure that attempting to create an instance without all of the
+    # keyword arguments causes a `TypeError`
     with pytest.raises(TypeError):
         framewriter = FrameWriter()
+
+    with pytest.raises(TypeError):
+        framewriter = FrameWriter(write_file.name)
+
+    with pytest.raises(TypeError):
+        framewriter = FrameWriter(frame_header = delimiters[0])
