@@ -41,10 +41,8 @@ def test_FrameWriter_init(write_file, delimiters):
     assert framewriter.past_frame_ids == []
     assert framewriter.frame_header == delimiters[0]
     assert framewriter.frame_footer == None
-    assert framewriter.frame_spacers == None
 
-    framewriter2 = FrameWriter(write_file.name, delimiters[0], delimiters[1], [(0, "cats")])
-    assert framewriter2.frame_spacers == [(0, "cats")]
+    framewriter2 = FrameWriter(write_file.name, delimiters[0], delimiters[1])
     assert framewriter2.frame_footer == delimiters[1]
 
 
@@ -59,14 +57,6 @@ def test_FrameWriter_incorrect_arguments(write_file, delimiters):
 
     with pytest.raises(TypeError):
         framewriter = FrameWriter(frame_header = delimiters[0])
-
-    # Check that FrameWriter raises AssertionErrors for the incorrect data
-    # inputs for frame_spacers
-    with pytest.raises(AssertionError):
-        framewriter = FrameWriter(write_file.name, frame_header = delimiters[0], frame_spacers = "cats")
-
-    with pytest.raises(AssertionError):
-        framewriter = FrameWriter(write_file.name, frame_header = delimiters[0], frame_spacers = ("cats", "are", "cool"))
 
 
 def test_FrameWriter_validate(write_file, delimiters, test_frames):
