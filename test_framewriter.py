@@ -1,5 +1,6 @@
 import pytest
 import tempfile
+from random import getrandbits
 from framewriter import FrameWriter
 
 @pytest.fixture
@@ -32,15 +33,22 @@ def delimiters():
 
 def test_FrameWriter_init(write_file, delimiters):
     # first we check that it creates an instance with reasonable defaults
-    framewriter = FrameWriter(write_file.name, delimiters[0], delimiters[1])
+    framewriter = FrameWriter(write_file.name, delimiters[0])
 
     assert framewriter.frame_length == 1024
     assert framewriter.write_file == write_file.name
     assert framewriter.current_frame == None
     assert framewriter.past_frame_ids == []
     assert framewriter.frame_header == delimiters[0]
-    assert framewriter.frame_footer == delimiters[1]
+    assert framewriter.frame_footer == None
+    assert framewriter.frame_spacers == None
 
+    framewriter2 = FrameWriter(write_file.name, delimiters[0], delimiters[1], [(0, "cats")])
+    assert framewriter2.frame_spacers == [(0, "cats")]
+    assert framewriter2.frame_footer == delimiters[1]
+
+
+def test_FrameWriter_incorrect_arguments(write_file, delimiters):
     # next we ensure that attempting to create an instance without all of the
     # keyword arguments causes a `TypeError`
     with pytest.raises(TypeError):
@@ -51,3 +59,29 @@ def test_FrameWriter_init(write_file, delimiters):
 
     with pytest.raises(TypeError):
         framewriter = FrameWriter(frame_header = delimiters[0])
+
+    # Check that FrameWriter raises AssertionErrors for the incorrect data
+    # inputs for frame_spacers
+    with pytest.raises(AssertionError):
+        framewriter = FrameWriter(write_file.name, frame_header = delimiters[0], frame_spacers = "cats")
+
+    with pytest.raises(AssertionError):
+        framewriter = FrameWriter(write_file.name, frame_header = delimiters[0], frame_spacers = ("cats", "are", "cool"))
+
+
+def test_FrameWriter_validate(write_file, delimiters, test_frames):
+    framewriter = FrameWriter(write_file.name, delimiters[0], delimiters[1])
+
+    # test a frame that is too short
+    assert framewriter.validate(test_frames[0]) == False
+    
+    # correct length frame but not the correct structure
+    assert framewriter.validate(bytes([getrandbits(8) for _ in range(1012)])) == False
+
+    # Frame with correct structure but random check_sum
+    assert framewriter.validate(test_frames[10]) == False
+
+    # Frame with correct length and structure
+    assert framewriter.validate(good_frame) == True
+
+
