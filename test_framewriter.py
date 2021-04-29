@@ -2,6 +2,7 @@ import pytest
 import tempfile
 from random import getrandbits
 from framewriter import FrameWriter
+from create_test_file import create_random_data_file as test_data
 
 @pytest.fixture
 def test_frames():
@@ -9,8 +10,7 @@ def test_frames():
     Use binary file created by `create_test_file.py` to simulate 100 frame of
     random camera data. 
     """
-    with open("Data/testy.bin", 'rb') as f:
-        data = f.read()
+    data = bytes(test_data(25))
     return data.split(b'\xbf' * 12)
 
 
