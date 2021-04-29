@@ -9,8 +9,9 @@ class FrameWriter(object):
         header/delimiter
     frame_header -- header for each frame used to split frames in earlier step
     frame_footer -- footer for each frame if present
+    unpack_string -- string used to decode byte data into associated types
     """
-    def __init__(self, write_file, frame_header, frame_footer=None, frame_length = 1024):
+    def __init__(self, write_file, frame_header, frame_footer=None, unpack_string=None, frame_length = 1024):
         self.frame_length = frame_length
         self.write_file = write_file
         self.write_file_object = open(write_file, "wb")
@@ -18,6 +19,7 @@ class FrameWriter(object):
         self.past_frame_ids = []
         self.frame_header = frame_header
         self.frame_footer = frame_footer
+        self.unpack_string = None
 
     def validate(self, frame):
         """

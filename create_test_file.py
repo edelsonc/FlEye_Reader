@@ -32,7 +32,25 @@ def create_random_frame(frame_number):
     return frame
 
 
+def create_random_data_file(n_frames=100):
+    # Each data file begins with a simple header
+    test_file = [0xbb] * 512
+
+    # Now we generate our random frames and append them to our header
+    for i in range(n_frames):
+        test_file += create_random_frame(i)
+
+    # Next we append a file footer
+    test_file += [0xeb] * 512
+
+    # Finally we return our new random file as a byte string
+    return bytearray(test_file)  
+
+
 if __name__ == "__main__":
+    # This section was writen before `create_random_data_file` and doesn't need
+    # to be updated to use this function. However, it essentially preforms the
+    # same function plus some basic file writing...
     with open("Data/testy.bin", "wb") as f:
         test_file = [0xbb] * 512
         for i in range(100):

@@ -41,6 +41,7 @@ def test_FrameWriter_init(write_file, delimiters):
     assert framewriter.past_frame_ids == []
     assert framewriter.frame_header == delimiters[0]
     assert framewriter.frame_footer == None
+    assert framewriter.unpack_string == None
 
     framewriter2 = FrameWriter(write_file.name, delimiters[0], delimiters[1])
     assert framewriter2.frame_footer == delimiters[1]
