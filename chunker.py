@@ -26,6 +26,7 @@ class Chunker(object):
         self.chunk_overlap = chunk_overlap
         self.file = data_file
         self.file_object = open(data_file, "rb") 
+        self.chunk_id = 0
 
     def close(self):
         """Simple method to close data file connection"""
@@ -54,10 +55,15 @@ class Chunker(object):
             except EOFError:
                 break
         """
+        chunk_id = self.chunk_id
+        byte_loc = self.file_object.tell()
         data = self.file_object.read(self.block_size * self.block_number)
         
         if len(data) == self.block_size * self.block_number:
             self.file_object.seek(-self.block_size * self.chunk_overlap, 1)
-        
-        return data
+            self.chunk_id += 1
+        elif len(data) < self.block_size * self.block_number:
+            self.chunk_id = "END"
+
+        return chunk_id, data, byte_loc
 
