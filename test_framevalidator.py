@@ -1,5 +1,4 @@
 import pytest
-import tempfile
 from random import getrandbits
 from framevalidator import FrameValidator
 from create_test_file import create_random_data_file as test_data
@@ -15,15 +14,6 @@ def test_frames():
 
 
 @pytest.fixture
-def write_file():
-    """
-    Creates a temporary write file for use with FrameValidator
-    """
-    t = tempfile.NamedTemporaryFile()
-    return t
-
-
-@pytest.fixture
 def delimiters():
     """
     Header and footer for frames
@@ -31,48 +21,24 @@ def delimiters():
     return (b'\xbf' * 12, b'\xef' * 16)
 
 
-def test_FrameValidator_init(write_file, delimiters):
+def test_FrameValidator_init(delimiters):
     # first we check that it creates an instance with reasonable defaults
-    framevalidator = FrameValidator(write_file.name, delimiters[0])
+    spacers=[(0, 10, b'\x00')]
+    framevalidator = FrameValidator(delimiters[0], delimiters[1], spacers)
 
     assert framevalidator.frame_length == 1024
-    assert framevalidator.write_file == write_file.name
+    assert framevalidator.header == delimiters[0]
+    assert framevalidator.footer == delimiters[1]
+    assert framevalidator.spacers == spacers
     assert framevalidator.current_frame == None
     assert framevalidator.past_frame_ids == []
-    assert framevalidator.frame_header == delimiters[0]
-    assert framevalidator.frame_footer == None
-    assert framevalidator.unpack_string == None
-
-    framevalidator2 = FrameValidator(write_file.name, delimiters[0], delimiters[1])
-    assert framevalidator2.frame_footer == delimiters[1]
 
 
-def test_FrameValidator_incorrect_arguments(write_file, delimiters):
-    # next we ensure that attempting to create an instance without all of the
-    # keyword arguments causes a `TypeError`
+def test_FrameValidator_incorrect_arguments(delimiters):
     with pytest.raises(TypeError):
         framevalidator = FrameValidator()
 
-    with pytest.raises(TypeError):
-        framevalidator = FrameValidator(write_file.name)
 
-    with pytest.raises(TypeError):
-        framevalidator = FrameValidator(frame_header = delimiters[0])
-
-
-def test_FrameValidator_validate(write_file, delimiters, test_frames):
-    framevalidator = FrameValidator(write_file.name, delimiters[0], delimiters[1])
-
-    # test a frame that is too short
-    assert framevalidator.validate(test_frames[0]) == False
-    
-    # correct length frame but not the correct structure
-    assert framevalidator.validate(bytes([getrandbits(8) for _ in range(1012)])) == False
-
-    # Frame with correct structure but random check_sum
-    assert framevalidator.validate(test_frames[10]) == False
-
-    # Frame with correct length and structure
-    assert framevalidator.validate(good_frame) == True
-
+def test_FrameValidator_validate(delimiters, test_frames):
+    pass
 
