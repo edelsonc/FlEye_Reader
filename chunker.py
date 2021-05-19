@@ -6,9 +6,9 @@ class Chunker(object):
     fixed number of blocks to ensure a camera frame isn't accidentally skipped
     in processing. It's action can be visualized as below
 
-    [BLOCK BLOCK BLOCK BLOCK] <- Chunk 1
-                      [BlOCK BLOCK BLOCK BLOCK] <- Chunk 2
-                                        [BlOCK BLOCK BLOCK BLOCK] <- Chunk 3
+    [BLOCK BLOCK BLOCK BLOCK] <- Chunk 0
+                      [BlOCK BLOCK BLOCK BLOCK] <- Chunk 1
+                                        [BlOCK BLOCK BLOCK BLOCK] <- Chunk 2
                                             ...
     Arguments
     ---------
@@ -38,22 +38,11 @@ class Chunker(object):
         reading in chunks of the data file and setting the read position back
         to get overlap in chunks.
 
-        When the end of the file is hit `next_chunk` will return the empty
-        string, ''. Currently `EOFError` is not raised to allow use in the
-        following way:
-
-        data == None
-        while data != "":
-            do things with reading chunks
-
-        An alternative using `EOFError` would be
-
-        while True:
-            try:
-                data = chunker.next_chunk()
-
-            except EOFError:
-                break
+        Returns
+        -------
+        chunk_id -- Current chunk in the file as labeling in class docstring
+        data -- the binary data in the read chunk
+        byte_loc -- byte location in the read file of start of chunk
         """
         chunk_id = self.chunk_id
         byte_loc = self.file_object.tell()
