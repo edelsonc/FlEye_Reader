@@ -29,7 +29,15 @@ class FrameValidator(object):
         frame -- a raw binary frame from the FlEye camera with header removed
         """
         pass
-#         # check frame is correct length
-#         if (len(frame) + len(self.frame_header)) != self.frame_length:
-#             return False
+        # TODO implement logger
+        # TODO validate frame is next in sequence                                             
+        # TODO validate frame is correct length                                               
+        # TODO validate frame has footer                                                      
+        # TODO validate spacers are in correct positions                                      
+        # TODO validate checksum is correct
+        # TODO validate tag switch values
+
+        # # check frame is correct length
+        # if (len(frame) + len(self.frame_header)) != self.frame_length:
+        #     return False
 

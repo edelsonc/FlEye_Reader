@@ -21,6 +21,15 @@ def delimiters():
     return (b'\xbf' * 12, b'\xef' * 16)
 
 
+@pytest.fixture
+def random_bytes():
+    """
+    Create a single frame of random bytes
+    """
+    data = bytes([getrandbits(8) for _ in range(1024)])    
+    return data
+
+
 def test_FrameValidator_init(delimiters):
     # first we check that it creates an instance with reasonable defaults
     spacers=[(0, 10, b'\x00')]
@@ -39,6 +48,13 @@ def test_FrameValidator_incorrect_arguments(delimiters):
         framevalidator = FrameValidator()
 
 
-def test_FrameValidator_validate(delimiters, test_frames):
-    pass
+def test_FrameValidator_validate(delimiters, test_frames, random_bytes):
+    pass 
+    # TODO test logger initialized
+    # TODO test frame sequence validation
+    # TODO test frame length validation
+    # TODO test frame footer validation
+    # TODO test spacer validation
+    # TODO test checksum validation
+    # TODO test tag switch validation
 
