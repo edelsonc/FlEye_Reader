@@ -1,3 +1,5 @@
+import logging
+
 class FrameValidator(object):
     """
     Class for validating and writing individual data frames from FlEye camera.
@@ -11,13 +13,17 @@ class FrameValidator(object):
     frame_footer -- footer for each frame if present
     unpack_string -- string used to decode byte data into associated types
     """
-    def __init__(self, header, footer, spacers, frame_length = 1024):
+    def __init__(self, log_file, header, footer, spacers, frame_length = 1024):
+        self.log_file = log_file
         self.frame_length = frame_length
         self.header = header
         self.footer = footer
         self.spacers = spacers
         self.current_frame = None
         self.past_frame_ids = []
+
+        logging.basicConfig(filename=log_file, format='%(asctime)s %(message)s', level=logging.DEBUG)
+        logging.debug("FrameValidator initialized")
 
     def validate(self, frame):
         """
@@ -29,8 +35,8 @@ class FrameValidator(object):
         frame -- a raw binary frame from the FlEye camera with header removed
         """
         pass
-        # TODO implement logger
         # TODO validate frame is next in sequence                                             
+        
         # TODO validate frame is correct length                                               
         # TODO validate frame has footer                                                      
         # TODO validate spacers are in correct positions                                      
