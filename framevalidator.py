@@ -50,7 +50,7 @@ class FrameValidator(object):
             logging.warning(log_message)
             return False
         else:
-            self.past_frame_ids[0], self.past_frame_ids[1] = self.past_frame_ids[1], frame.id
+            self.past_frame_ids[0], self.past_frame_ids[1] = self.past_frame_ids[1], frame_id
 
         # TODO validate frame has footer                                                      
         # TODO validate spacers are in correct positions                                      
