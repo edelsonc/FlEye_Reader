@@ -41,23 +41,27 @@ class FrameValidator(object):
             logging.warning(log_message)
             return False
  
-        # TODO validate frame is next in sequence        
+        # TODO validate frame has footer                                                      
+        footer_len = len(self.footer)
+        if frame[-footer_len:] != self.footer:
+            log_message = "Frame at {} is missing or has an incorrect footer".format(byte_loc)
+            logging.warning(log_message)
+            return False
+
+        # TODO validate spacers are in correct positions                                      
+        # TODO validate checksum is correct
+        # TODO validate tag switch values
+        # TODO validate frame is next in sequence 
+
         frame_id = int.from_bytes(frame[:4], "big")
         if self.past_frame_ids == []:
             self.past_frame_ids = [-1, frame_id]
         elif frame_id != self.past_frame_ids[1] + 1:
             log_message = "Out of order frame sequence: frame {} directly after frame {} and frame {}".format(frame_id, self.past_frame_ids[0], self.past_frame_ids[1])
             logging.warning(log_message)
-            return False
+            self.past_frame_ids[0], self.past_frame_ids[1] = self.past_frame_ids[1], frame_id
         else:
             self.past_frame_ids[0], self.past_frame_ids[1] = self.past_frame_ids[1], frame_id
 
-        # TODO validate frame has footer                                                      
-        # TODO validate spacers are in correct positions                                      
-        # TODO validate checksum is correct
-        # TODO validate tag switch values
-
-        # # check frame is correct length
-        # if (len(frame) + len(self.frame_header)) != self.frame_length:
-        #     return False
+        return True
 

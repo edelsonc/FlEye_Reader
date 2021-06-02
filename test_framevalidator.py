@@ -76,9 +76,15 @@ def test_FrameValidator_validate(delimiters, test_frames, random_bytes, log_file
     # TODO test frame sequence validation
     framevalidator.validate(test_frames[1], 1, 512)
     framevalidator.validate(test_frames[2], 1, 512 +1024)
-    assert framevalidator.validate(test_frames[5], 1, 512 + 1024 * 4) == False
+    framevalidator.validate(test_frames[5], 1, 512 + 1024 * 4)
     assert "Out of order frame sequence: frame 4 directly after frame 0 and frame 1" in caplog.text
+
     # TODO test frame footer validation
+    footless = test_frames[6][:-16]
+    footless += b'\xbf' * 16 
+    assert framevalidator.validate(footless, 1, 512 * 5) == False
+    assert "Frame at 2560 is missing or has an incorrect footer" in caplog.text
+
     # TODO test spacer validation
     # TODO test checksum validation
     # TODO test tag switch validation
