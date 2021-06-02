@@ -60,10 +60,24 @@ def test_FrameValidator_incorrect_arguments(delimiters):
         framevalidator = FrameValidator()
 
 
-def test_FrameValidator_validate(delimiters, test_frames, random_bytes):
-    pass 
-    # TODO test frame sequence validation
+def test_FrameValidator_validate(delimiters, test_frames, random_bytes, log_file, caplog):
     # TODO test frame length validation
+    short_frame = random_bytes[:100]
+    file_opener = test_frames[0]
+
+    spacers=[(0, 10, b'\x00')]
+    framevalidator = FrameValidator(log_file.name, delimiters[0], delimiters[1], spacers)
+    assert framevalidator.validate(short_frame, 0, 0) == False
+    assert "Frame at 0 is wrong length: 112 bytes instead of 1024 bytes" in caplog.text
+
+    assert framevalidator.validate(file_opener, 49, 45) == False
+    assert "Frame at 45 is wrong length: 524 bytes instead of 1024 bytes" in caplog.text
+
+    # TODO test frame sequence validation
+    framevalidator.validate(test_frames[1], 1, 512)
+    framevalidator.validate(test_frames[2], 1, 512 +1024)
+    assert framevalidator.validate(test_frames[5], 1, 512 + 1024 * 4) == False
+    assert "Out of order frame sequence: frame 5 directly after frame 1 and frame 2" in caplog.text
     # TODO test frame footer validation
     # TODO test spacer validation
     # TODO test checksum validation

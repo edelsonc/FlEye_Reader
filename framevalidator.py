@@ -25,7 +25,7 @@ class FrameValidator(object):
         logging.basicConfig(filename=log_file, format='%(asctime)s %(message)s', level=logging.DEBUG)
         logging.debug("FrameValidator initialized")
 
-    def validate(self, frame):
+    def validate(self, frame, chunk_id, byte_loc):
         """
         Method to validate is a provided frame from the camera stream is a
         valid format
@@ -34,10 +34,24 @@ class FrameValidator(object):
         ---------
         frame -- a raw binary frame from the FlEye camera with header removed
         """
-        pass
-        # TODO validate frame is next in sequence                                             
-        
         # TODO validate frame is correct length                                               
+        frame_length = len(frame) + len(self.header)
+        if frame_length != self.frame_length:
+            log_message = "Frame at {} is wrong length: {} bytes instead of {} bytes".format(byte_loc, frame_length, self.frame_length)
+            logging.warning(log_message)
+            return False
+ 
+        # TODO validate frame is next in sequence        
+        frame_id = int.from_bytes(frame[:4], "big")
+        if self.past_frame_ids == []:
+            self.past_frame_ids = [-1, frame_id]
+        elif frame_id != self.past_frame_ids[1] + 1:
+            log_message = "Out of order frame sequence: frame {} directly after frame {} and frame {}".format(frame_id, self.past_frame_ids[0], self.past_frame_ids[1])
+            logging.warning(log_message)
+            return False
+        else:
+            self.past_frame_ids[0], self.past_frame_ids[1] = self.past_frame_ids[1], frame.id
+
         # TODO validate frame has footer                                                      
         # TODO validate spacers are in correct positions                                      
         # TODO validate checksum is correct
