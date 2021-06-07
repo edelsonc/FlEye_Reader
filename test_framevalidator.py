@@ -65,7 +65,7 @@ def test_FrameValidator_validate(delimiters, test_frames, random_bytes, log_file
     short_frame = random_bytes[:100]
     file_opener = test_frames[0]
 
-    spacers=[(0, 10, b'\x00')]
+    spacers=[(32, 16, b'\x00'), (816, 16, b'\x00'), (872, 136, b'\x00')]
     framevalidator = FrameValidator(log_file.name, delimiters[0], delimiters[1], spacers)
     assert framevalidator.validate(short_frame, 0, 0) == False
     assert "Frame at 0 is wrong length: 112 bytes instead of 1024 bytes" in caplog.text
@@ -82,10 +82,15 @@ def test_FrameValidator_validate(delimiters, test_frames, random_bytes, log_file
     # TODO test frame footer validation
     footless = test_frames[6][:-16]
     footless += b'\xbf' * 16 
-    assert framevalidator.validate(footless, 1, 512 * 5) == False
-    assert "Frame at 2560 is missing or has an incorrect footer" in caplog.text
+    assert framevalidator.validate(footless, 1, 512 + 1024 * 5) == False
+    assert "Frame at 5632 is missing or has an incorrect footer" in caplog.text
 
     # TODO test spacer validation
+    spacer_bad = test_frames[7]
+    spacer_bad = spacer_bad[:32] + b'\xbd' * 16 + spacer_bad[48:]
+    assert framevalidator.validate(spacer_bad, 1, 512 + 1024 * 6) == False
+    assert "Frame at 6656 has invalid spacer at block position 32" in caplog.text
+
     # TODO test checksum validation
     # TODO test tag switch validation
 

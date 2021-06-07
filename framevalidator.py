@@ -35,7 +35,8 @@ class FrameValidator(object):
         frame -- a raw binary frame from the FlEye camera with header removed
         """
         # TODO validate frame is correct length                                               
-        frame_length = len(frame) + len(self.header)
+        header_len = len(self.header)
+        frame_length = len(frame) + header_len
         if frame_length != self.frame_length:
             log_message = "Frame at {} is wrong length: {} bytes instead of {} bytes".format(byte_loc, frame_length, self.frame_length)
             logging.warning(log_message)
@@ -49,6 +50,13 @@ class FrameValidator(object):
             return False
 
         # TODO validate spacers are in correct positions                                      
+        for spacer in self.spacers:
+            begin = spacer[0] - header_len
+            end = begin + spacer[1]
+            if spacer[2] * spacer[1] != frame[begin:end]:
+                log_message = "Frame at {} has invalid spacer at block position {}".format(byte_loc, spacer[0])
+                logging.warning(log_message)
+                return False
         # TODO validate checksum is correct
         # TODO validate tag switch values
         # TODO validate frame is next in sequence 
