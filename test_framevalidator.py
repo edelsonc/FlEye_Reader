@@ -87,10 +87,14 @@ def test_FrameValidator_validate(delimiters, test_frames, random_bytes, log_file
 
     # TODO test spacer validation
     spacer_bad = test_frames[7]
-    spacer_bad = spacer_bad[:32] + b'\xbd' * 16 + spacer_bad[48:]
+    spacer_bad = spacer_bad[:20] + b'\xbd' * 16 + spacer_bad[36:]
     assert framevalidator.validate(spacer_bad, 1, 512 + 1024 * 6) == False
     assert "Frame at 6656 has invalid spacer at block position 32" in caplog.text
 
     # TODO test checksum validation
     # TODO test tag switch validation
+    bad_tag = test_frames[8]
+    bad_tag = bad_tag[:4] + b'\x0f' * 8 + b'\xff'*8 + bad_tag[20:]
+    framevalidator.validate(bad_tag, 1, 512 + 1024 * 7)
+    assert "Frame at 7680 has an invalid tag format" in caplog.text
 

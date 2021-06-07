@@ -21,6 +21,7 @@ class FrameValidator(object):
         self.spacers = spacers
         self.current_frame = None
         self.past_frame_ids = []
+        self.tags = [b'\x0f' * 16, b'\xff' * 16]
 
         logging.basicConfig(filename=log_file, format='%(asctime)s %(message)s', level=logging.DEBUG)
         logging.debug("FrameValidator initialized")
@@ -57,10 +58,14 @@ class FrameValidator(object):
                 log_message = "Frame at {} has invalid spacer at block position {}".format(byte_loc, spacer[0])
                 logging.warning(log_message)
                 return False
+
         # TODO validate checksum is correct
         # TODO validate tag switch values
-        # TODO validate frame is next in sequence 
+        if frame[4:16] not in self.tags:
+            log_message = "Frame at {} has an invalid tag format".format(byte_loc)
+            logging.warning(log_message)
 
+        # TODO validate frame is next in sequence 
         frame_id = int.from_bytes(frame[:4], "big")
         if self.past_frame_ids == []:
             self.past_frame_ids = [-1, frame_id]
