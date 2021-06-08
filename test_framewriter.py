@@ -2,7 +2,7 @@ import pytest
 import logging
 import tempfile
 from random import getrandbits
-from framevalidator import FrameValidator
+from framewriter import FrameWriter
 from create_test_file import create_random_data_file as test_data
 
 @pytest.fixture
