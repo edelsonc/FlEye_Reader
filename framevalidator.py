@@ -6,12 +6,14 @@ class FrameValidator(object):
 
     Arguments
     ---------
-    write_file -- file that parsed and validated frames are writen to
+    log_file -- file that logs FrameValidator start-up and validation issues
+    header -- header for each frame used to split frames in earlier step
+    footer -- footer for each frame if present
+    spacers -- a list of tuples for spacer locations; has format (spacer start
+        location, spacer length, spacer byte) where lengths and location are in
+        bytes
     frame_length -- size of an idividual in bytes *with* the frame 
         header/delimiter
-    frame_header -- header for each frame used to split frames in earlier step
-    frame_footer -- footer for each frame if present
-    unpack_string -- string used to decode byte data into associated types
     """
     def __init__(self, log_file, header, footer, spacers, frame_length = 1024):
         self.log_file = log_file
@@ -34,6 +36,10 @@ class FrameValidator(object):
         Arguments
         ---------
         frame -- a raw binary frame from the FlEye camera with header removed
+        chunk_id -- the id of the chunk; one of the returns of 
+            Chunker.next_chunk
+        byte_loc -- the byte location of the beginning of the frame in the
+            raw data file
         """
         # TODO validate frame is correct length                                               
         header_len = len(self.header)
