@@ -9,7 +9,7 @@ from create_test_file import create_random_data_file as test_data
 def test_frames():
     """
     Use binary file created by `create_test_file.py` to simulate 100 frame of
-    random camera data. 
+    random camera data.
     """
     data = bytes(test_data(25))
     return data.split(b'\xbf' * 12)
@@ -28,7 +28,7 @@ def random_bytes():
     """
     Create a single frame of random bytes
     """
-    data = bytes([getrandbits(8) for _ in range(1024)])    
+    data = bytes([getrandbits(8) for _ in range(1024)])
     return data
 
 
@@ -81,7 +81,7 @@ def test_FrameValidator_validate(delimiters, test_frames, random_bytes, log_file
 
     # TODO test frame footer validation
     footless = test_frames[6][:-16]
-    footless += b'\xbf' * 16 
+    footless += b'\xbf' * 16
     assert framevalidator.validate(footless, 1, 512 + 1024 * 5) == False
     assert "Frame at 5632 is missing or has an incorrect footer" in caplog.text
 
@@ -97,4 +97,3 @@ def test_FrameValidator_validate(delimiters, test_frames, random_bytes, log_file
     bad_tag = bad_tag[:4] + b'\x0f' * 8 + b'\xff'*8 + bad_tag[20:]
     framevalidator.validate(bad_tag, 1, 512 + 1024 * 7)
     assert "Frame at 7680 has an invalid tag format" in caplog.text
-

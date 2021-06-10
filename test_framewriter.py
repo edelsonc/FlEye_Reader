@@ -1,6 +1,5 @@
 import pytest
 import logging
-import tempfile
 from random import getrandbits
 from framewriter import FrameWriter
 from create_test_file import create_random_data_file as test_data
@@ -15,22 +14,11 @@ def test_frames():
     return data.split(b'\xbf' * 12)
 
 
-@pytest.fixture
-def log_file():
-    """
-    Create a temporary named file for logging
-    """
-    return tempfile.NamedTemporaryFile()
-
-
-@pytest.fixture
-def write_file():
-    """
-    Create a temporary named file for writing frames
-    """
-    return tempfile.NamedTemporaryFile()
-
-
-def test_FrameWriter_init(delimiters, log_file, write_file, caplog):
+def test_FrameWriter_init(caplog, tmpdir):
     caplog.set_level(logging.DEBUG)  # set logger capture to debug for testing
+
+    framewriter = FrameWriter(tmpdir.join("write.bin"), tmpdir.join("framewriter.log"))
+
+    assert framewriter.write_file == tmpdir.join("write.bin")
+    assert "FrameWriter initialized" in caplog.text 
 
