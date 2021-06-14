@@ -8,7 +8,7 @@ from create_test_file import create_random_data_file as test_data
 @pytest.fixture
 def test_frames():
     """
-    Use binary file created by `create_test_file.py` to simulate 100 frame of
+    Use binary file created by `create_test_file.py` to simulate 25 frame of
     random camera data.
     """
     data = bytes(test_data(25))
