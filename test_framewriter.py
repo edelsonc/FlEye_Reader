@@ -41,7 +41,7 @@ def test_FrameWriter_write(caplog, tmpdir, test_frames, unpack_string):
 
     # TODO test break frame into each individual piece of "data"
     broken_frame = test_frames[1]
-    assert len(framewriter._unpack(broken_frame)) == 10
+    assert len(framewriter._unpack(broken_frame)) == 805
 
     # TODO test rearange pixels to be in ascending order
     # TODO test cast everything to 4 byte numbers (32 bit)
