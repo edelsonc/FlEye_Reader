@@ -58,6 +58,10 @@ def test_FrameWriter_reformat_frame(unpack_string, tmpdir, test_frames):
     assert reformatted_frame[:4] == b'\x00\x00\x00\x09'
     assert reformatted_frame[4:8] == b'\x00\x00\x00' + test_frames[10][5:6]
 
+    # check pixel value is correctly editted
+    pixel_id = test_frames[10][36]
+    new_location = pixel_id * 4 + 8
+    assert reformatted_frame[new_location:new_location + 4] == b'\x00' + test_frames[10][37:40]
 
     # TODO test log error (wrap in try except?)
 
