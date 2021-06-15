@@ -63,5 +63,27 @@ def test_FrameWriter_reformat_frame(unpack_string, tmpdir, test_frames):
     new_location = pixel_id * 4 + 8
     assert reformatted_frame[new_location:new_location + 4] == b'\x00' + test_frames[10][37:40]
 
+
+def test_FrameWriter_close(unpack_string, tmpdir, test_frames, caplog):
+    caplog.set_level(logging.DEBUG)  # set logger capture to debug for testing
+
+    framewriter = FrameWriter(unpack_string, tmpdir.join("write.bin"), tmpdir.join("framewriter.log"))
+    framewriter.write(test_frames[10])
+    framewriter.close()
+
+    assert "FrameWriter write file closed" in caplog.text
+
+    framewriter.write(test_frames[17])
+    assert "Error occured while writing Frame 16" in caplog.text
+
+def test_FrameWriter_write(unpack_string, tmpdir, test_frames):
+    framewriter = FrameWriter(unpack_string, tmpdir.join("write.bin"), tmpdir.join("framewriter.log"))
+    framewriter.write(test_frames[10])
+    framewriter.close()
+
+    with open(tmpdir.join("write.bin"), "rb") as f:
+        reformatted_frame = framewriter._reformat_frame(test_frames[10])
+        assert f.read(1024) == reformatted_frame
+ 
     # TODO test log error (wrap in try except?)
 

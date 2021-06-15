@@ -22,7 +22,16 @@ class FrameWriter(object):
         logging.debug("FrameWriter initialized")
 
     def write(self, frame):
-        pass
+        try:
+            reformatted_frame = self._reformat_frame(frame)
+            self.write_file_object.write(reformatted_frame)
+        except Exception as Argument:
+            frame_id = int.from_bytes(frame[:4], "big")
+            logging.exception("Error occured while writing Frame {}".format(frame_id))
+
+    def close(self):
+        self.write_file_object.close()
+        logging.debug("FrameWriter write file closed")
 
     def _reformat_frame(self, frame):
         """
