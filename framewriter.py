@@ -33,17 +33,17 @@ class FrameWriter(object):
         # break frame into each individual piece of "data"
         frame_tuple = self._unpack(frame)
 
-        frame_number = frame[0]
-        tag = frame[1]
-        adc_tuple = frame[17:785]
-        imu_tuple = frame[785:]
+        frame_number = frame_tuple[0]
+        tag = frame_tuple[1]
+        adc_tuple = frame_tuple[17:785]
+        imu_tuple = frame_tuple[785:]
 
         # rearange pixels to be in ascending order
         ordered_adc = self._order_adc(frame_tuple[17:785])
 
         # cast everything to 4 byte numbers (32 bit)
         ordered_frame = (frame_number, tag) + ordered_adc + imu_tuple
-        frame32bit = stuct.pack(">" + "I" * len(ordered_frame), *ordered_frame)
+        frame32bit = struct.pack(">" + "I" * len(ordered_frame), *ordered_frame)
 
         # extend frame to block size with spacers
         n_filler = self.block_size - len(frame32bit)

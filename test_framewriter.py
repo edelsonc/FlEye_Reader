@@ -1,6 +1,5 @@
 import pytest
 import logging
-from random import getrandbits
 from framewriter import FrameWriter
 from create_test_file import create_random_data_file as test_data
 
@@ -19,9 +18,9 @@ def unpack_string():
     """
     Create an unpack string for our binary data
     """
-    unpack_string = "I" + "B" * 16 + "x" * 16
+    unpack_string = ">I" + "B" * 16 + "x" * 16
     unpack_string += ("B" + "B" * 3) * 192 + "x" * 16
-    unpack_string += "h" * 20 + "x" * (8 * 17 + 16)
+    unpack_string += "H" * 20 + "x" * (8 * 17 + 16)
     return unpack_string
 
 
@@ -51,6 +50,14 @@ def test_FrameWriter_order_adc(unpack_string, tmpdir):
     res = (0xf2a5cf, 0x84158a, 0xd8aa10)
     assert framewriter._order_adc(rand_adc) == res
 
-    # TODO test cast everything to 4 byte numbers (32 bit)
+
+def test_FrameWriter_reformat_frame(unpack_string, tmpdir, test_frames):
+    framewriter = FrameWriter(unpack_string, tmpdir.join("write.bin"), tmpdir.join("framewriter.log"))
+    reformatted_frame = framewriter._reformat_frame(test_frames[10])
+    print(test_frames[10][5:6])
+    assert reformatted_frame[:4] == b'\x00\x00\x00\x09'
+    assert reformatted_frame[4:8] == b'\x00\x00\x00' + test_frames[10][5:6]
+
+
     # TODO test log error (wrap in try except?)
 
