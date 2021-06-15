@@ -35,22 +35,20 @@ def test_FrameWriter_init(caplog, tmpdir, unpack_string):
     assert "FrameWriter initialized" in caplog.text 
 
 
-def test_FrameWriter_write(caplog, tmpdir, test_frames, unpack_string):
-    caplog.set_level(logging.DEBUG)  # set logger capture to debug for testing
-
+def test_FrameWriter_unpack(unpack_string, tmpdir, test_frames):
     framewriter = FrameWriter(unpack_string, tmpdir.join("write.bin"), tmpdir.join("framewriter.log"))
-
-    # TODO test break frame into each individual piece of "data"
     broken_frame = test_frames[1]
     assert len(framewriter._unpack(broken_frame)) == 805
 
-    # TODO test rearange pixels to be in ascending order
+
+def test_FrameWriter_order_adc(unpack_string, tmpdir):
+    framewriter = FrameWriter(unpack_string, tmpdir.join("write.bin"), tmpdir.join("framewriter.log"))
+
     rand_adc = (0x01, 0x84, 0x15, 0x8a,
                 0x00, 0xf2, 0xa5, 0xcf,
                 0x02, 0xd8, 0xaa, 0x10)
 
     res = (0xf2a5cf, 0x84158a, 0xd8aa10)
-
     assert framewriter._order_adc(rand_adc) == res
 
     # TODO test cast everything to 4 byte numbers (32 bit)

@@ -49,6 +49,7 @@ class FrameWriter(object):
         n_filler = self.block_size - len(frame32bit)
         assert n_filler >= 0, "Frame {} is larger than a single block by {} bytes".format(frame_number, abs(n_filler))
         frame32bit += b"\x00" * n_filler
+
         return frame32bit
 
     def _unpack(self, frame):
