@@ -47,7 +47,7 @@ class FrameWriter(object):
 
         # extend frame to block size with spacers
         n_filler = self.block_size - len(frame32bit)
-        assert n_filler >= 0, "Frame {} is larger than a single block by {} bytes".format(frame_number, abs(n_filler)
+        assert n_filler >= 0, "Frame {} is larger than a single block by {} bytes".format(frame_number, abs(n_filler))
         frame32bit += b"\x00" * n_filler
         return frame32bit
 
@@ -58,7 +58,7 @@ class FrameWriter(object):
         """
         return struct.unpack(self.unpack_string, frame)
 
-    def _order_adc(self, adc_data):
+    def _order_adc(self, adc_tuple):
         """
         Function to take raw adc data and order it by pixel id. Additionally
         casts to 32 bit

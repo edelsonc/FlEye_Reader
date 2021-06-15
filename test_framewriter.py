@@ -1,5 +1,6 @@
 import pytest
 import logging
+from random import getrandbits
 from framewriter import FrameWriter
 from create_test_file import create_random_data_file as test_data
 
@@ -44,6 +45,14 @@ def test_FrameWriter_write(caplog, tmpdir, test_frames, unpack_string):
     assert len(framewriter._unpack(broken_frame)) == 805
 
     # TODO test rearange pixels to be in ascending order
+    rand_adc = (0x01, 0x84, 0x15, 0x8a,
+                0x00, 0xf2, 0xa5, 0xcf,
+                0x02, 0xd8, 0xaa, 0x10)
+
+    res = (0xf2a5cf, 0x84158a, 0xd8aa10)
+
+    assert framewriter._order_adc(rand_adc) == res
+
     # TODO test cast everything to 4 byte numbers (32 bit)
     # TODO test log error (wrap in try except?)
 
