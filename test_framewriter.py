@@ -74,7 +74,7 @@ def test_FrameWriter_close(unpack_string, tmpdir, test_frames, caplog):
     assert "FrameWriter write file closed" in caplog.text
 
     framewriter.write(test_frames[17])
-    assert "Error occured while writing Frame 16" in caplog.text
+    assert "ValueError: write to closed file" in caplog.text
 
 def test_FrameWriter_write(unpack_string, tmpdir, test_frames):
     framewriter = FrameWriter(unpack_string, tmpdir.join("write.bin"), tmpdir.join("framewriter.log"))
@@ -85,5 +85,3 @@ def test_FrameWriter_write(unpack_string, tmpdir, test_frames):
         reformatted_frame = framewriter._reformat_frame(test_frames[10])
         assert f.read(1024) == reformatted_frame
  
-    # TODO test log error (wrap in try except?)
-
