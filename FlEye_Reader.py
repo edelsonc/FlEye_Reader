@@ -44,7 +44,14 @@ if __name__ == "__main__":
     framevalidator = FrameValidator(read_log, configs["header"], configs["footer"], configs["spacers"])
     framewriter = FrameWriter(configs["unpack_string"], write_file, write_log)
 
-    try:
-        while chunker.chunk_id != "END":
-            chunk_id, chunk, byte_loc = chunker.next_chunk()
+    while chunker.chunk_id != "END":
+        chunk_id, chunk, byte_loc = chunker.next_chunk()
+        split_chunk = Chunker.split(chunk, byte_loc, configs["header"])
+        for frame_loc, frame in split_chunk:
+            validated = framevalidator.validate(frame, chunk_id, frame_loc)
+            if validated:
+                framewriter.write(frame)
 
+    chunker.close()
+    framewriter.close()
+ 
