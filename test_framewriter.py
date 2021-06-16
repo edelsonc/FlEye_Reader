@@ -54,9 +54,10 @@ def test_FrameWriter_order_adc(unpack_string, tmpdir):
 def test_FrameWriter_reformat_frame(unpack_string, tmpdir, test_frames):
     framewriter = FrameWriter(unpack_string, tmpdir.join("write.bin"), tmpdir.join("framewriter.log"))
     reformatted_frame = framewriter._reformat_frame(test_frames[10])
-    print(test_frames[10][5:6])
+    assert len(reformatted_frame) == 1024
     assert reformatted_frame[:4] == b'\x00\x00\x00\x09'
     assert reformatted_frame[4:8] == b'\x00\x00\x00' + test_frames[10][5:6]
+    assert reformatted_frame[776:780] == b'\x00\x00' + test_frames[10][820:822]
 
     # check pixel value is correctly editted
     pixel_id = test_frames[10][36]
