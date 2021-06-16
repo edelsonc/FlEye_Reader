@@ -80,3 +80,15 @@ def test_close_file(tmpdir):
     with pytest.raises(ValueError):
         chunk_id, data = chunker.next_chunk()
 
+
+def test_Chunker_split(tmpdir):
+    read_tmpfile = tmpdir.join("test_split.bin")
+    tmpfile_content = random_bytes(read_tmpfile)
+
+    test_chunk = b"\x00\x00\x00\x00\xff\xff\x00\x00\x00\xff\xff\x00"
+    chunker = Chunker(read_tmpfile)
+    split_chunks = Chunker.split(test_chunk, 0, b"\xff\xff")
+
+    assert len(split_chunks) == 3
+    assert split_chunks[1] == (6, b'\x00\x00\x00')
+

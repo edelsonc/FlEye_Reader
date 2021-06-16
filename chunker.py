@@ -56,3 +56,17 @@ class Chunker(object):
 
         return chunk_id, data, byte_loc
 
+    @staticmethod
+    def split(chunk, byte_loc, split_pattern):
+        """
+        Class method for splitting a chunk into frames with a given delimiter
+        and keeping track of the byte_loc for each frame
+        """
+        frame_loc = byte_loc
+        split_chunks = []
+        for i, frame in enumerate(chunk.split(split_pattern)):
+            split_chunks.append((frame_loc, frame))
+            frame_loc += len(split_pattern) + len(frame)
+
+        return split_chunks
+
