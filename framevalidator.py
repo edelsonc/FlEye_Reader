@@ -67,7 +67,7 @@ class FrameValidator(object):
 
         # TODO validate checksum is correct
         # TODO validate tag switch values
-        if frame[4:16] not in self.tags:
+        if frame[4:20] not in self.tags:
             log_message = "Frame at {} has an invalid tag format".format(byte_loc)
             logging.warning(log_message)
 

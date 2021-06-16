@@ -14,7 +14,7 @@ def create_log_paths(read_file, write_file):
     logging_dir = Path(os.getcwd()) / "Log"
     
     read_file_tail = os.path.split(read_file)[1]
-    write_file_tail = os.paht.split(write_file)[1]
+    write_file_tail = os.path.split(write_file)[1]
 
     current_time_str = datetime.now().strftime("%m_%d_%y-%H-%M-%S")
     read_log = logging_dir / (read_file_tail + current_time_str + ".log")
