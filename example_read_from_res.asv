@@ -1,6 +1,0 @@
-data_file = fopen("Data\res.bin");
-datau32 = fread(data_file, '*uint32', 'b');
-data_matrix = reshape(datau32, 256, []);
-imu = data_matrix(195:end,:);
-imu = imu(1:20,:);
-fclose(data_file);
