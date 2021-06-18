@@ -44,7 +44,7 @@ data_file = fopen("Data\reformatted_data.bin");
 datau32 = fread(data_file, '*uint32', 'b');
 data_matrix = reshape(datau32, 256, []);
 imu = data_matrix(195:end,:);
-imu = imu(1:20,:);  % removes the spacers added to pad the frame to 1024 bytes
+imu = imu(1:20,:);  % removes rows of frame padding
 
 % convert the u32 into it's correct format of i16
 imui16 = typecast(uint16(imu(:)), 'int16');
