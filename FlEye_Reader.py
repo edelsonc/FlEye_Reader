@@ -28,7 +28,7 @@ def main(read_file, write_file):
     "Commandline program to validate and reformat data from the fly vision camera."
     #  creater an instance of Chunker with the read_file
     try:
-        chunker = Chunker(read_file)
+        chunker = Chunker(read_file, block_number=100)
     except FileNotFoundError:
         print("Provided read_file cannot be open. Check that the path to the read_file is correct")
         sys.exit(1)
