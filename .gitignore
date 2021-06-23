@@ -2,3 +2,17 @@ config*
 Log/*
 Data/*
 *.swp
+# python venv
+bin/
+lib64/
+include/
+lib/
+share/
+pyvenv.cfg
+lib*
+
+# python running things
+__pycache__
+
+# We have test data living in a data folder
+Data/
