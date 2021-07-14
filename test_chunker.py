@@ -8,9 +8,9 @@ def test_initialization(tmpdir):
 
     chunker = Chunker(read_tmpfile)
     assert chunker.file == read_tmpfile
-    assert chunker.block_size == 1024
+    assert chunker.block_size == 512
     assert chunker.block_number == 10
-    assert chunker.chunk_overlap == 1
+    assert chunker.chunk_overlap == 2
     assert chunker.chunk_id == 0
 
 
