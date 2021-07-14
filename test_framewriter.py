@@ -54,7 +54,7 @@ def test_FrameWriter_order_adc(unpack_string, tmpdir):
 def test_FrameWriter_reformat_frame(unpack_string, tmpdir, test_frames):
     framewriter = FrameWriter(unpack_string, tmpdir.join("write.bin"), tmpdir.join("framewriter.log"))
     reformatted_frame = framewriter._reformat_frame(test_frames[10])
-    assert len(reformatted_frame) == 1024
+    assert len(reformatted_frame) == 1020
     assert reformatted_frame[:4] == b'\x00\x00\x00\x09'
     assert reformatted_frame[4:8] == b'\x00\x00\x00' + test_frames[10][5:6]
     assert reformatted_frame[776:780] == b'\x00\x00' + test_frames[10][820:822]
@@ -69,20 +69,20 @@ def test_FrameWriter_close(unpack_string, tmpdir, test_frames, caplog):
     caplog.set_level(logging.DEBUG)  # set logger capture to debug for testing
 
     framewriter = FrameWriter(unpack_string, tmpdir.join("write.bin"), tmpdir.join("framewriter.log"))
-    framewriter.write(test_frames[10])
+    framewriter.write(test_frames[10], 0)
     framewriter.close()
 
     assert "FrameWriter write file closed" in caplog.text
 
-    framewriter.write(test_frames[17])
+    framewriter.write(test_frames[17], 0)
     assert "ValueError: write to closed file" in caplog.text
 
 def test_FrameWriter_write(unpack_string, tmpdir, test_frames):
     framewriter = FrameWriter(unpack_string, tmpdir.join("write.bin"), tmpdir.join("framewriter.log"))
-    framewriter.write(test_frames[10])
+    framewriter.write(test_frames[10], 0)
     framewriter.close()
 
     with open(tmpdir.join("write.bin"), "rb") as f:
         reformatted_frame = framewriter._reformat_frame(test_frames[10])
-        assert f.read(1024) == reformatted_frame
+        assert f.read(1024) == b'\x00\x00\x00\x00' + reformatted_frame
  

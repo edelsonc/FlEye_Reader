@@ -25,7 +25,7 @@ class FrameWriter(object):
         logging.basicConfig(filename=log_file, format='%(asctime)s %(message)s', level=logging.DEBUG)
         logging.debug("FrameWriter initialized")
 
-    def write(self, frame):
+    def write(self, frame, run_id):
         """
         Public facing fuction used to reformatted and write a frame to the
         FrameWriter.write_file
@@ -35,8 +35,9 @@ class FrameWriter(object):
         frame -- fly camera frame validated by FrameValidator
         """
         try:
+            run_idu32 = run_id.to_bytes(4, "big")
             reformatted_frame = self._reformat_frame(frame)
-            self.write_file_object.write(reformatted_frame)
+            self.write_file_object.write(run_idu32 + reformatted_frame)
         except Exception as Argument:
             frame_id = int.from_bytes(frame[:4], "big")
             logging.exception("Error occured while writing Frame {}".format(frame_id))
@@ -78,7 +79,7 @@ class FrameWriter(object):
         frame32bit = struct.pack(">" + "I" * len(ordered_frame), *ordered_frame)
 
         # extend frame to block size with spacers
-        n_filler = self.block_size - len(frame32bit)
+        n_filler = self.block_size - len(frame32bit) - 4  # -4 for run ID
         assert n_filler >= 0, "Frame {} is larger than a single block by {} bytes".format(frame_number, abs(n_filler))
         frame32bit += b"\x00" * n_filler
 
