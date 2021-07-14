@@ -24,11 +24,12 @@ def create_log_paths(read_file):
 @click.command()
 @click.argument('read_file')
 @click.argument('write_file')
-def main(read_file, write_file):
+@click.option('--n_blocks', default=2 * 10**6, help='number of 512 byte blocks read into memeory in a single chunk')
+def main(read_file, write_file, n_blocks):
     "Commandline program to validate and reformat data from the fly vision camera."
     #  creater an instance of Chunker with the read_file
     try:
-        chunker = Chunker(read_file, block_number=100)
+        chunker = Chunker(read_file, block_number=n_blocks)
     except FileNotFoundError:
         print("Provided read_file cannot be open. Check that the path to the read_file is correct")
         sys.exit(1)
