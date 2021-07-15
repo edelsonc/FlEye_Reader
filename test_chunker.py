@@ -1,6 +1,22 @@
 import pytest
+from random import getrandbits
 from chunker import Chunker
-from test_helpers import random_bytes, small_random_bytes
+
+def random_bytes(tmp_file):
+    """Create a temporary file with random bytes"""
+    with open(tmp_file, "wb") as t:
+        data = bytes([getrandbits(8) for _ in range(1024 * 50)])
+        t.write(data)       
+    return data
+
+
+def small_random_bytes(tmp_file):
+    """Creates a small temporary file with random bytes"""
+    with open(tmp_file, "wb") as t:
+        data = bytes([getrandbits(8) for _ in range(1024 * 5)])
+        t.write(data)
+    return data
+
 
 def test_initialization(tmpdir):
     read_tmpfile = tmpdir.join("test_init.bin")
@@ -91,4 +107,20 @@ def test_Chunker_split(tmpdir):
 
     assert len(split_chunks) == 3
     assert split_chunks[1] == (6, b'\x00\x00\x00')
+
+
+def test_Chunker_rewind(tmpdir):
+    read_tmpfile = tmpdir.join("test_rewind.bin")
+    tmpfile_content = random_bytes(read_tmpfile)
+
+    chunker = Chunker(read_tmpfile)
+    _, first_chunk, _ = chunker.next_chunk()
+    while chunker.chunk_id != "END":
+        _, _, _ = chunker.next_chunk()
+
+    chunker.rewind()
+    assert chunker.chunk_id == 0
+
+    _, test_chunk, _ = chunker.next_chunk()
+    assert test_chunk == first_chunk 
 

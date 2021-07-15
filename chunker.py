@@ -56,6 +56,13 @@ class Chunker(object):
 
         return chunk_id, data, byte_loc
 
+    def rewind(self):
+        """
+        Rewinds the read file to allow reading of the data again
+        """
+        self.file_object.seek(0, 0)
+        self.chunk_id = 0
+
     @staticmethod
     def split(chunk, byte_loc, split_pattern):
         """
