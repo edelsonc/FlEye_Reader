@@ -21,6 +21,21 @@ def create_log_paths(read_file):
     return read_log
 
 
+def find_all(string, substring):
+    """
+    Function to find all non-overlapping instances of a `substring` in `string`
+    """
+    start = 0
+    matches = []
+    while True:
+        start = string.find(substring, start)
+        if start == -1:
+            return matches
+
+        matches.append(start)
+        start += len(substring)
+
+
 @click.command()
 @click.argument('read_file')
 @click.argument('write_file')
@@ -32,7 +47,7 @@ def main(read_file, write_file, n_blocks):
         chunker = Chunker(read_file, block_number=n_blocks)
     except FileNotFoundError:
         print("Provided read_file cannot be open. Check that the path to the read_file is correct")
-        sys.exit(1)
+        sys.exit(0)
 
     # create log files for both FrameValidator and FrameWriter
     log_file = create_log_paths(read_file)
@@ -40,8 +55,6 @@ def main(read_file, write_file, n_blocks):
     framevalidator = FrameValidator(log_file, configs["header"], configs["footer"], configs["spacers"])
     framewriter = FrameWriter(configs["unpack_string"], write_file, log_file)
 
-    # we need to keep track of when we're in a data run; these two variables
-    # will be used to determine when to write frames and how to label runs
     in_run = False
     run_id = 0
     while chunker.chunk_id != "END":
