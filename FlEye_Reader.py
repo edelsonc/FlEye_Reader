@@ -36,6 +36,53 @@ def find_all(string, substring):
         start += len(substring)
 
 
+def find_runs(chunker, configs):
+    """
+    Function to find data collection runs
+    """
+    run_starts = {}
+    run_ends = {}
+    while chunker.chunk_id != "END":
+        chunk_id, chunk, byte_loc = chunker.next_chunk()
+        starts = find_all(chunk, configs["run_start"])
+        ends = find_all(chunk, configs["run_end"])
+
+        for start in starts:
+            run_start.add(start)
+
+        for end in ends:
+            run_ends.add(end)
+
+    run_starts = sorted(list(run_starts))
+    run_ends = sorted(list(run_ends))
+
+    return match_ranges(run_starts, run_ends)
+
+
+def match_ranges(starts, ends):
+    runs = []
+    for start in starts:
+        for end in ends:
+            if start < end:
+                runs.append((start, end))
+                break
+    return runs
+
+
+def intersections(intervals):
+    ordered_intervals = sorted(intervals, key=lambda x: x[0])
+    
+    lower = ordered_intervals.pop(0)
+    while ordered_intervals != []:
+        for upper in ordered_intervals:
+            if lower[1] > upper[0]:
+                return True
+
+        lower = ordered_intervals.pop(0)
+
+    return False
+
+
 @click.command()
 @click.argument('read_file')
 @click.argument('write_file')
@@ -61,23 +108,6 @@ def main(read_file, write_file, n_blocks):
         chunk_id, chunk, byte_loc = chunker.next_chunk()
         split_chunk = Chunker.split(chunk, byte_loc, configs["header"])
         for frame_loc, frame in split_chunk:
-            # TODO determine if the following should be at the "chunk" level
-            # if configs["run_start"] in frame:
-            #     in_run = True
-            #     run_id += 1
-            # elif configs["run_end"] in frame:
-            #     in_run = False
-            # elif (configs["run_start"] in frame) and (configs["run_end"] in frame):
-            #     # This is the case where you have a block that contains both a
-            #     # start run and end run delimiter. This occurs when you have
-            #     # multiple runs and you get a frame that's just the two
-            #     # delimiters back to back.
-            #     start_pos, end_pos = frame.find(configs["run_start"]), frame.find(configs["run_end"])
-            #     if start_pos < end_pos:
-            #         in_run = False
-            #     else:
-            #         in_run = True
-            #         run_id += 1
 
             validated = framevalidator.validate(frame, chunk_id, frame_loc)
             if validated and in_run:
