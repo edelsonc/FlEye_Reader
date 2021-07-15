@@ -21,6 +21,57 @@ def create_log_paths(read_file):
     return read_log
 
 
+def match_ranges(starts, ends):
+    """
+    Helper function to take sets of start points and end points and create
+    valid intervals for data runs. This is done by taking the ordered list of
+    start points and for each start point finding the first end point that is
+    greater than it. 
+
+    Arguments
+    ---------
+    starts -- sorted list of start points
+    ends -- sorted list of end points
+
+    Example:
+    >>> match_ranges([1, 7, 15], [14, 77])
+    [(1, 14), (7, 14), (15, 77)]
+    """
+    runs = []
+    for start in starts:
+        for end in ends:
+            if start < end:
+                runs.append((start, end))
+                break
+    return runs
+
+
+def intersections(intervals):
+    """
+    Helper function to determine if there are any intersections in a set of
+    intervals
+
+    Arguments
+    ---------
+    intervals -- list of real intervals in the form of tuple
+        e.g. [(1, 10), (7.7, 12), (15, 99)]
+    """
+    ordered_intervals = sorted(intervals, key=lambda x: x[0])
+    
+    if intervals == []:
+        return False
+
+    lower = ordered_intervals.pop(0)
+    while ordered_intervals != []:
+        for upper in ordered_intervals:
+            if lower[1] > upper[0]:
+                return True
+
+        lower = ordered_intervals.pop(0)
+
+    return False
+
+
 def find_all(string, substring):
     """
     Function to find all non-overlapping instances of a `substring` in `string`
@@ -56,31 +107,7 @@ def find_runs(chunker, configs):
     run_starts = sorted(list(run_starts))
     run_ends = sorted(list(run_ends))
 
-    return match_ranges(run_starts, run_ends)
-
-
-def match_ranges(starts, ends):
-    runs = []
-    for start in starts:
-        for end in ends:
-            if start < end:
-                runs.append((start, end))
-                break
-    return runs
-
-
-def intersections(intervals):
-    ordered_intervals = sorted(intervals, key=lambda x: x[0])
-    
-    lower = ordered_intervals.pop(0)
-    while ordered_intervals != []:
-        for upper in ordered_intervals:
-            if lower[1] > upper[0]:
-                return True
-
-        lower = ordered_intervals.pop(0)
-
-    return False
+    intervals = match_ranges(run_starts, run_ends)
 
 
 @click.command()
