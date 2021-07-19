@@ -88,8 +88,7 @@ def find_all(string, substring):
 
 
 def validate_intervals(runs, configs):
-    raise NotImplementedError
-
+    return NotImplementedError
 
 def find_runs(chunker, configs):
     """

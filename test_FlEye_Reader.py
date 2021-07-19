@@ -69,3 +69,5 @@ def test_FlEye_Reader_validate_intervals(configs):
     runs = [(0, 22), (23, 100), (109, 120), (121, 155)]
     assert not FlEye_Reader.validate_intervals(runs, configs)
 
+    runs = []
+    assert not FlEye_Reader.validate_intervals(runs, configs)
