@@ -10,6 +10,11 @@ def test_runs():
     return data
 
 
+@pytest.fixture
+def configs():
+    return {"run_start": b'\xbb', "run_end": b'\xeb'}
+
+
 def test_FlEye_Reader_intersections():
     x = [(1, 15), (17, 22)]
     assert not FlEye_Reader.intersections(x) 
@@ -28,6 +33,7 @@ def test_FlEye_Reader_intersections():
 
     x = [(102, 111), (11, 17), (15, 19)]
     assert FlEye_Reader.intersections(x)
+
 
 def test_FlEye_Reader_match_ranges():
     x = [0, 10, 14]
@@ -48,3 +54,18 @@ def test_FlEye_Reader_match_ranges():
 
     y = [10, 100]
     assert FlEye_Reader.match_ranges(x, y) == [(22, 100), (55, 100)]
+
+
+def test_FlEye_Reader_validate_intervals(configs):
+    runs = [(0, 22), (23, 100)]
+    assert FlEye_Reader.validate_intervals(runs, configs)
+
+    runs = [(10, 22), (23, 100)]
+    assert not FlEye_Reader.validate_intervals(runs, configs)
+
+    runs = [(0, 22), (26, 100)]
+    assert not FlEye_Reader.validate_intervals(runs, configs)
+
+    runs = [(0, 22), (23, 100), (109, 120), (121, 155)]
+    assert not FlEye_Reader.validate_intervals(runs, configs)
+

@@ -87,6 +87,10 @@ def find_all(string, substring):
         start += len(substring)
 
 
+def validate_intervals(runs, configs):
+    raise NotImplementedError
+
+
 def find_runs(chunker, configs):
     """
     Function to find data collection runs
@@ -108,6 +112,7 @@ def find_runs(chunker, configs):
     run_ends = sorted(list(run_ends))
 
     intervals = match_ranges(run_starts, run_ends)
+     
 
 
 @click.command()
@@ -135,6 +140,8 @@ def main(read_file, write_file, n_blocks):
         chunk_id, chunk, byte_loc = chunker.next_chunk()
         split_chunk = Chunker.split(chunk, byte_loc, configs["header"])
         for frame_loc, frame in split_chunk:
+
+            # TODO fix issue with invalid last frame in sequence
 
             validated = framevalidator.validate(frame, chunk_id, frame_loc)
             if validated and in_run:
