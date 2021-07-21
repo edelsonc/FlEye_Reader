@@ -56,18 +56,19 @@ def test_FlEye_Reader_match_ranges():
     assert FlEye_Reader.match_ranges(x, y) == [(22, 100), (55, 100)]
 
 
-def test_FlEye_Reader_validate_intervals(configs):
+def test_FlEye_Reader_valid_runs(configs):
     runs = [(0, 22), (23, 100)]
-    assert FlEye_Reader.validate_intervals(runs, configs)
+    assert FlEye_Reader.valid_runs(runs, configs) == runs
 
     runs = [(10, 22), (23, 100)]
-    assert not FlEye_Reader.validate_intervals(runs, configs)
+    assert FlEye_Reader.valid_runs(runs, configs) == []
 
     runs = [(0, 22), (26, 100)]
-    assert not FlEye_Reader.validate_intervals(runs, configs)
+    assert FlEye_Reader.valid_runs(runs, configs) == [(0, 22)]
 
     runs = [(0, 22), (23, 100), (109, 120), (121, 155)]
-    assert not FlEye_Reader.validate_intervals(runs, configs)
+    assert FlEye_Reader.valid_runs(runs, configs) == [(0, 22), (23, 100)]
 
     runs = []
-    assert not FlEye_Reader.validate_intervals(runs, configs)
+    assert FlEye_Reader.valid_runs(runs, configs) == []
+

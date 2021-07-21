@@ -87,8 +87,25 @@ def find_all(string, substring):
         start += len(substring)
 
 
-def validate_intervals(runs, configs):
-    return NotImplementedError
+def valid_runs(runs, configs):
+    if runs == []:
+        return runs
+
+    if runs[0][0] != 0:
+        return []
+
+    if runs[0][0] == 0 and len(runs) == 1:
+        return runs
+    
+    good_runs = runs[:1] 
+    for earlier, later in zip(runs[:-1], runs[1:]):
+        if later[0] == (earlier[1] + len(configs["run_end"])):
+            good_runs.append(later) 
+        else:
+            break
+
+    return good_runs
+
 
 def find_runs(chunker, configs):
     """
