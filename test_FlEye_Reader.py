@@ -15,26 +15,6 @@ def configs():
     return {"run_start": b'\xbb', "run_end": b'\xeb'}
 
 
-def test_FlEye_Reader_intersections():
-    x = [(1, 15), (17, 22)]
-    assert not FlEye_Reader.intersections(x) 
-
-    x = [(1, 15), (3, 15)]
-    assert FlEye_Reader.intersections(x)
-
-    x = [(2, 16), (4, 18)]
-    assert FlEye_Reader.intersections(x)
-
-    x = []
-    assert not FlEye_Reader.intersections(x)
-
-    x = [(4, 18), (1, 2), (22, 105), (107, 1000)]
-    assert not FlEye_Reader.intersections(x)
-
-    x = [(102, 111), (11, 17), (15, 19)]
-    assert FlEye_Reader.intersections(x)
-
-
 def test_FlEye_Reader_match_ranges():
     x = [0, 10, 14]
     y = [3, 13, 22]
@@ -56,19 +36,19 @@ def test_FlEye_Reader_match_ranges():
     assert FlEye_Reader.match_ranges(x, y) == [(22, 100), (55, 100)]
 
 
-def test_FlEye_Reader_valid_runs(configs):
+def test_FlEye_Reader_valid_session(configs):
     runs = [(0, 22), (23, 100)]
-    assert FlEye_Reader.valid_runs(runs, configs) == runs
+    assert FlEye_Reader.valid_session(runs, configs) == runs
 
     runs = [(10, 22), (23, 100)]
-    assert FlEye_Reader.valid_runs(runs, configs) == []
+    assert FlEye_Reader.valid_session(runs, configs) == []
 
     runs = [(0, 22), (26, 100)]
-    assert FlEye_Reader.valid_runs(runs, configs) == [(0, 22)]
+    assert FlEye_Reader.valid_session(runs, configs) == [(0, 22)]
 
     runs = [(0, 22), (23, 100), (109, 120), (121, 155)]
-    assert FlEye_Reader.valid_runs(runs, configs) == [(0, 22), (23, 100)]
+    assert FlEye_Reader.valid_session(runs, configs) == [(0, 22), (23, 100)]
 
     runs = []
-    assert FlEye_Reader.valid_runs(runs, configs) == []
+    assert FlEye_Reader.valid_session(runs, configs) == []
 

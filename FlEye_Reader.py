@@ -46,32 +46,6 @@ def match_ranges(starts, ends):
     return runs
 
 
-def intersections(intervals):
-    """
-    Helper function to determine if there are any intersections in a set of
-    intervals
-
-    Arguments
-    ---------
-    intervals -- list of real intervals in the form of tuple
-        e.g. [(1, 10), (7.7, 12), (15, 99)]
-    """
-    ordered_intervals = sorted(intervals, key=lambda x: x[0])
-    
-    if intervals == []:
-        return False
-
-    lower = ordered_intervals.pop(0)
-    while ordered_intervals != []:
-        for upper in ordered_intervals:
-            if lower[1] > upper[0]:
-                return True
-
-        lower = ordered_intervals.pop(0)
-
-    return False
-
-
 def find_all(string, substring):
     """
     Function to find all non-overlapping instances of a `substring` in `string`
@@ -87,7 +61,11 @@ def find_all(string, substring):
         start += len(substring)
 
 
-def valid_runs(runs, configs):
+def valid_session(runs, configs):
+    """
+    Function to take a list of run intervals and determine which ones make up
+    a valid camera session.
+    """
     if runs == []:
         return runs
 
@@ -97,14 +75,14 @@ def valid_runs(runs, configs):
     if runs[0][0] == 0 and len(runs) == 1:
         return runs
     
-    good_runs = runs[:1] 
+    session = runs[:1] 
     for earlier, later in zip(runs[:-1], runs[1:]):
         if later[0] == (earlier[1] + len(configs["run_end"])):
-            good_runs.append(later) 
+            session.append(later) 
         else:
             break
 
-    return good_runs
+    return session
 
 
 def find_runs(chunker, configs):
@@ -127,8 +105,9 @@ def find_runs(chunker, configs):
     run_starts = sorted(list(run_starts))
     run_ends = sorted(list(run_ends))
 
-    intervals = match_ranges(run_starts, run_ends)
-     
+    runs = match_ranges(run_starts, run_ends)
+    session = valid_session(runs, configs)
+    return session
 
 
 @click.command()
