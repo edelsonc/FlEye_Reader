@@ -110,6 +110,20 @@ def find_runs(chunker, configs):
     return session
 
 
+def get_run_id(sessions, frame_loc):
+    """
+    Simple helper function to compute what session a frame belongs to.
+    """
+    if frame_loc < sessions[0][0]:
+        return -1
+    else:
+        run_id = 0
+        for run_start, run_end in sessions:
+            if run_start <= frame_loc <= run_end:
+                return run_id
+            run_id += 1
+
+
 @click.command()
 @click.argument('read_file')
 @click.argument('write_file')
@@ -129,9 +143,16 @@ def main(read_file, write_file, n_blocks):
     framevalidator = FrameValidator(log_file, configs["header"], configs["footer"], configs["spacers"])
     framewriter = FrameWriter(configs["unpack_string"], write_file, log_file)
 
-    in_run = False
-    run_id = 0
-    while chunker.chunk_id != "END":
+    # scan through the file and determine where sessions are
+    sessions = find_runs(chunker, configs)
+    chunker.rewind()
+
+    if sessions == []:
+        raise ValueError("The selected read file has no valid sessions")
+
+    end_sessions = sessions[-1][1]
+    byte_loc = 0
+    while chunker.chunk_id != "END" and byte_loc < end_sessions:
         chunk_id, chunk, byte_loc = chunker.next_chunk()
         split_chunk = Chunker.split(chunk, byte_loc, configs["header"])
         for frame_loc, frame in split_chunk:
@@ -139,7 +160,8 @@ def main(read_file, write_file, n_blocks):
             # TODO fix issue with invalid last frame in sequence
 
             validated = framevalidator.validate(frame, chunk_id, frame_loc)
-            if validated and in_run:
+            if validated:
+                run_id = get_run_id(sessions, frame_loc)
                 framewriter.write(frame, run_id)
 
     chunker.close()

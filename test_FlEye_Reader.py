@@ -82,3 +82,12 @@ def test_FlEye_Reader_find_runs(test_runs, camera_configs, tmpdir):
     chunker = create_test_chunker(read_tmpfile, b'\x0f' + test_runs)
     assert FlEye_Reader.find_runs(chunker, camera_configs) == []
 
+
+def test_FlEye_Reader_get_run_id():
+    sessions = [(0, 100), (101, 200), (201, 222)]
+    assert FlEye_Reader.get_run_id(sessions, 10) == 0
+    assert FlEye_Reader.get_run_id(sessions, 210) == 2
+    assert FlEye_Reader.get_run_id(sessions, -10) == -1
+    assert FlEye_Reader.get_run_id(sessions, 250) == None
+    assert FlEye_Reader.get_run_id(sessions, 200) == 1
+
