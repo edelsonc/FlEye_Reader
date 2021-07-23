@@ -160,7 +160,7 @@ def main(read_file, write_file, n_blocks):
             # TODO fix issue with invalid last frame in sequence
 
             validated = framevalidator.validate(frame, chunk_id, frame_loc)
-            if validated:
+            if validated and frame_loc < end_sessions:
                 run_id = get_run_id(sessions, frame_loc)
                 framewriter.write(frame, run_id)
 
