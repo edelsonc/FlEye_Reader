@@ -1,11 +1,12 @@
 import pytest
 import FlEye_Reader
 from create_test_file import create_random_data_file as test_data
+from chunker import Chunker
 
 @pytest.fixture
 def test_runs():
     data = b''
-    for _ in range(5):
+    for _ in range(3):
         data += bytes(test_data(5))
     return data
 
@@ -13,6 +14,18 @@ def test_runs():
 @pytest.fixture
 def configs():
     return {"run_start": b'\xbb', "run_end": b'\xeb'}
+
+
+@pytest.fixture
+def camera_configs():
+    return {"run_start": b'\xbb' * 512, "run_end": b'\xeb' * 512}
+
+
+def create_test_chunker(tmp_file, data):
+    with open(tmp_file, "wb") as t:
+        t.write(data)
+
+    return Chunker(tmp_file)
 
 
 def test_FlEye_Reader_match_ranges():
@@ -51,4 +64,21 @@ def test_FlEye_Reader_valid_session(configs):
 
     runs = []
     assert FlEye_Reader.valid_session(runs, configs) == []
+
+
+def test_FlEye_Reader_find_runs(test_runs, camera_configs, tmpdir):
+    read_tmpfile = tmpdir.join("test_find_runs.bin")
+    chunker = create_test_chunker(read_tmpfile, test_runs)
+
+    session = [((512 + 1024 * 5 + 512) * i, (512 + 1024 * 5) * (i + 1) + 512 * i) for i in range(3)] 
+    assert FlEye_Reader.find_runs(chunker, camera_configs) == session
+
+    chunker = create_test_chunker(read_tmpfile, test_runs + b'\x00' + test_runs)
+    assert FlEye_Reader.find_runs(chunker, camera_configs) == session
+
+    chunker = create_test_chunker(read_tmpfile, test_runs[:12288] + b'\xff' + test_runs[12288:])
+    assert FlEye_Reader.find_runs(chunker, camera_configs) == session[:-1]
+
+    chunker = create_test_chunker(read_tmpfile, b'\x0f' + test_runs)
+    assert FlEye_Reader.find_runs(chunker, camera_configs) == []
 

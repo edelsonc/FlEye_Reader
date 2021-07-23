@@ -89,15 +89,15 @@ def find_runs(chunker, configs):
     """
     Function to find data collection runs
     """
-    run_starts = {}
-    run_ends = {}
+    run_starts = set()
+    run_ends = set()
     while chunker.chunk_id != "END":
         chunk_id, chunk, byte_loc = chunker.next_chunk()
-        starts = find_all(chunk, configs["run_start"])
-        ends = find_all(chunk, configs["run_end"])
+        starts = [byte_loc + i for i in find_all(chunk, configs["run_start"])]
+        ends = [byte_loc + i for i in find_all(chunk, configs["run_end"])]
 
         for start in starts:
-            run_start.add(start)
+            run_starts.add(start)
 
         for end in ends:
             run_ends.add(end)
