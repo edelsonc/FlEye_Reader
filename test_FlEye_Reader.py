@@ -18,7 +18,11 @@ def configs():
 
 @pytest.fixture
 def camera_configs():
-    return {"run_start": b'\xbb' * 512, "run_end": b'\xeb' * 512}
+    config = {"run_start": b'\xbb' * 512, 
+            "run_end": b'\xeb' * 512, 
+            "header": b'\xbf' * 12,
+            "footer": b'\xef' * 16}
+    return config
 
 
 def create_test_chunker(tmp_file, data):
@@ -90,4 +94,5 @@ def test_FlEye_Reader_get_run_id():
     assert FlEye_Reader.get_run_id(sessions, -10) == -1
     assert FlEye_Reader.get_run_id(sessions, 250) == None
     assert FlEye_Reader.get_run_id(sessions, 200) == 1
+
 

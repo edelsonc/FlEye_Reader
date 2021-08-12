@@ -158,6 +158,7 @@ def main(read_file, write_file, n_blocks):
         for frame_loc, frame in split_chunk:
 
             # TODO fix issue with invalid last frame in sequence
+            frame = frame.split(configs["footer"])[0]
 
             validated = framevalidator.validate(frame, chunk_id, frame_loc)
             if validated and frame_loc < end_sessions:

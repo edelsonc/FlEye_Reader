@@ -41,22 +41,16 @@ class FrameValidator(object):
         byte_loc -- the byte location of the beginning of the frame in the
             raw data file
         """
-        # TODO validate frame is correct length                                               
+        # validate frame is correct length                                               
         header_len = len(self.header)
-        frame_length = len(frame) + header_len
+        footer_len = len(self.footer)
+        frame_length = len(frame) + header_len + footer_len
         if frame_length != self.frame_length:
             log_message = "Frame at {} is wrong length: {} bytes instead of {} bytes".format(byte_loc, frame_length, self.frame_length)
             logging.warning(log_message)
             return False
- 
-        # TODO validate frame has footer                                                      
-        footer_len = len(self.footer)
-        if frame[-footer_len:] != self.footer:
-            log_message = "Frame at {} is missing or has an incorrect footer".format(byte_loc)
-            logging.warning(log_message)
-            return False
 
-        # TODO validate spacers are in correct positions                                      
+        # validate spacers are in correct positions                                      
         for spacer in self.spacers:
             begin = spacer[0] - header_len
             end = begin + spacer[1]
@@ -66,12 +60,12 @@ class FrameValidator(object):
                 return False
 
         # TODO validate checksum is correct
-        # TODO validate tag switch values
+        # validate tag switch values
         if frame[4:20] not in self.tags:
             log_message = "Frame at {} has an invalid tag format".format(byte_loc)
             logging.warning(log_message)
 
-        # TODO validate frame is next in sequence 
+        # validate frame is next in sequence 
         frame_id = int.from_bytes(frame[:4], "big")
         if self.past_frame_ids == []:
             self.past_frame_ids = [-1, frame_id]

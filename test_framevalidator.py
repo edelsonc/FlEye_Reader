@@ -12,7 +12,7 @@ def test_frames():
     random camera data.
     """
     data = bytes(test_data(25))
-    return data.split(b'\xbf' * 12)
+    return [ frame.split(b'\xef' * 16)[0] for frame in data.split(b'\xbf' * 12) ]
 
 
 @pytest.fixture
@@ -65,22 +65,16 @@ def test_FrameValidator_validate(delimiters, test_frames, random_bytes, tmpdir, 
     file_opener = test_frames[0]
 
     assert framevalidator.validate(short_frame, 0, 0) == False
-    assert "Frame at 0 is wrong length: 112 bytes instead of 1024 bytes" in caplog.text
+    assert "Frame at 0 is wrong length: 128 bytes instead of 1024 bytes" in caplog.text
 
     assert framevalidator.validate(file_opener, 49, 45) == False
-    assert "Frame at 45 is wrong length: 524 bytes instead of 1024 bytes" in caplog.text
+    assert "Frame at 45 is wrong length: 540 bytes instead of 1024 bytes" in caplog.text
 
     # test frame sequence validation
     framevalidator.validate(test_frames[1], 1, 512)
     framevalidator.validate(test_frames[2], 1, 512 +1024)
     framevalidator.validate(test_frames[5], 1, 512 + 1024 * 4)
     assert "Out of order frame sequence: frame 4 directly after frame 0 and frame 1" in caplog.text
-
-    # test frame footer validation
-    footless = test_frames[6][:-16]
-    footless += b'\xbf' * 16
-    assert framevalidator.validate(footless, 1, 512 + 1024 * 5) == False
-    assert "Frame at 5632 is missing or has an incorrect footer" in caplog.text
 
     # test spacer validation
     spacer_bad = test_frames[7]
@@ -94,3 +88,4 @@ def test_FrameValidator_validate(delimiters, test_frames, random_bytes, tmpdir, 
     bad_tag = bad_tag[:4] + b'\x0f' * 8 + b'\xff'*8 + bad_tag[20:]
     framevalidator.validate(bad_tag, 1, 512 + 1024 * 7)
     assert "Frame at 7680 has an invalid tag format" in caplog.text
+
