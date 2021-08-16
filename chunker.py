@@ -64,7 +64,7 @@ class Chunker(object):
         self.chunk_id = 0
 
     @staticmethod
-    def split(chunk, byte_loc, split_pattern):
+    def split(chunk, byte_loc, header, footer):
         """
         Class method for splitting a chunk into frames with a given delimiter
         and keeping track of the byte_loc for each frame

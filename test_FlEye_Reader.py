@@ -95,4 +95,3 @@ def test_FlEye_Reader_get_run_id():
     assert FlEye_Reader.get_run_id(sessions, 250) == None
     assert FlEye_Reader.get_run_id(sessions, 200) == 1
 
-

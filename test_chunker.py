@@ -1,6 +1,15 @@
 import pytest
 from random import getrandbits
 from chunker import Chunker
+from create_test_file import create_random_data_file as test_data
+
+@pytest.fixture
+def test_runs():
+    data = b''
+    for _ in range(3):
+        data += bytes(test_data(5))
+    return data
+
 
 def random_bytes(tmp_file):
     """Create a temporary file with random bytes"""
@@ -16,6 +25,11 @@ def small_random_bytes(tmp_file):
         data = bytes([getrandbits(8) for _ in range(1024 * 5)])
         t.write(data)
     return data
+
+
+# def create_test_file(tmp_file, data)
+#     with open(tmp_file, "wb") as t:
+#         t.write(data)
 
 
 def test_initialization(tmpdir):
@@ -97,16 +111,20 @@ def test_close_file(tmpdir):
         chunk_id, data = chunker.next_chunk()
 
 
-def test_Chunker_split(tmpdir):
-    read_tmpfile = tmpdir.join("test_split.bin")
-    tmpfile_content = random_bytes(read_tmpfile)
-
+def test_Chunker_split(test_runs):
     test_chunk = b"\x00\x00\x00\x00\xff\xff\x00\x00\x00\xff\xff\x00"
-    chunker = Chunker(read_tmpfile)
-    split_chunks = Chunker.split(test_chunk, 0, b"\xff\xff")
-
+    split_chunks = Chunker.split(test_chunk, 0, b"\xff\xff", b'\xef')
     assert len(split_chunks) == 3
     assert split_chunks[1] == (6, b'\x00\x00\x00')
+
+    test_chunk = b"\xaa\xff\xff\x00\x00\x00\x00\xef\xff\xff\x00\x00\x00\xef\xff\xff\x00\xef"
+    split_chunks = Chunker.split(test_chunk, 0, b"\xff\xff", b'\xef')
+    assert len(split_chunks) == 4
+    assert split_chunks == [(1, b'\x00\x00\x00\x00'), (8, b'\x00\x00\x00'), (14, b'\x00')]
+
+    # TODO test split on simulated data
+    split_chunks = Chunker.split(test_runs, 0, b'\xbf'*12, b'\xef'*16)
+    assert len(split_chunks) == 5
 
 
 def test_Chunker_rewind(tmpdir):
