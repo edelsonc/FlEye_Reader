@@ -154,7 +154,7 @@ def main(read_file, write_file, n_blocks):
     byte_loc = 0
     while chunker.chunk_id != "END" and byte_loc < end_sessions:
         chunk_id, chunk, byte_loc = chunker.next_chunk()
-        split_chunk = Chunker.split(chunk, byte_loc, configs["header"])
+        split_chunk = Chunker.split(chunk, byte_loc, configs["header"], configs["footer"])
         for frame_loc, frame in split_chunk:
 
             validated = framevalidator.validate(frame, chunk_id, frame_loc)
