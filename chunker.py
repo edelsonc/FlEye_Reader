@@ -66,14 +66,32 @@ class Chunker(object):
     @staticmethod
     def split(chunk, byte_loc, header, footer):
         """
-        Class method for splitting a chunk into frames with a given delimiter
-        and keeping track of the byte_loc for each frame
-        """
-        frame_loc = byte_loc
-        split_chunks = []
-        for i, frame in enumerate(chunk.split(split_pattern)):
-            split_chunks.append((frame_loc, frame))
-            frame_loc += len(split_pattern) + len(frame)
+        Class method for splitting chunks into frames. Takes a chunk as created
+        by `Chunker` and splits on both header and footers for each frame. Only
+        returns frames that have both a header and a footer. 
 
-        return split_chunks
+        Arguments
+        ---------
+        chunk, byte_loc -- returns of Chunker.next_chunk
+        header, footer -- frame start and end delimiter
+        """
+        # first we find where the first frame starts
+        first_header = chunk.find(header)
+        if first_header == -1:
+            return []
+
+        # we remove everything before the first header and split on headers
+        frame_loc = byte_loc + first_header
+        split_frames = []
+        for frame in chunk[first_header:].split(header):
+            if frame == b'':
+                continue
+            
+            footer_loc = frame.find(footer)
+            if footer_loc != -1:
+                split_frames.append((frame_loc, frame[:footer_loc]))
+ 
+            frame_loc += len(header) + len(frame)
+
+        return split_frames
 

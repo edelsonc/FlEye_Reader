@@ -5,9 +5,7 @@ from create_test_file import create_random_data_file as test_data
 
 @pytest.fixture
 def test_runs():
-    data = b''
-    for _ in range(3):
-        data += bytes(test_data(5))
+    data = bytes(test_data(5))
     return data
 
 
@@ -112,19 +110,22 @@ def test_close_file(tmpdir):
 
 
 def test_Chunker_split(test_runs):
+    test_chunk = b"\x00\x00\xef\x00"
+    split_chunks = Chunker.split(test_chunk, 0, b"\xff\xff", b"\xef")
+    assert split_chunks == [] 
+    
     test_chunk = b"\x00\x00\x00\x00\xff\xff\x00\x00\x00\xff\xff\x00"
     split_chunks = Chunker.split(test_chunk, 0, b"\xff\xff", b'\xef')
-    assert len(split_chunks) == 3
-    assert split_chunks[1] == (6, b'\x00\x00\x00')
+    assert split_chunks == []
 
     test_chunk = b"\xaa\xff\xff\x00\x00\x00\x00\xef\xff\xff\x00\x00\x00\xef\xff\xff\x00\xef"
     split_chunks = Chunker.split(test_chunk, 0, b"\xff\xff", b'\xef')
-    assert len(split_chunks) == 4
     assert split_chunks == [(1, b'\x00\x00\x00\x00'), (8, b'\x00\x00\x00'), (14, b'\x00')]
 
-    # TODO test split on simulated data
+    # test split on simulated data
     split_chunks = Chunker.split(test_runs, 0, b'\xbf'*12, b'\xef'*16)
     assert len(split_chunks) == 5
+    assert split_chunks[0] == (512, test_runs[524:1520])
 
 
 def test_Chunker_rewind(tmpdir):
