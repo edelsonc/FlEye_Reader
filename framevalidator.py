@@ -70,7 +70,7 @@ class FrameValidator(object):
         if self.past_frame_ids == []:
             self.past_frame_ids = [-1, frame_id]
         elif frame_id != self.past_frame_ids[1] + 1:
-            log_message = "Out of order frame sequence: frame {} directly after frame {} and frame {}".format(frame_id, self.past_frame_ids[0], self.past_frame_ids[1])
+            log_message = "Out of order frame sequence at {}: frame {} directly after frame {} and frame {}".format(byte_loc, frame_id, self.past_frame_ids[0], self.past_frame_ids[1])
             logging.warning(log_message)
             self.past_frame_ids[0], self.past_frame_ids[1] = self.past_frame_ids[1], frame_id
         else:

@@ -74,7 +74,7 @@ def test_FrameValidator_validate(delimiters, test_frames, random_bytes, tmpdir, 
     framevalidator.validate(test_frames[1], 1, 512)
     framevalidator.validate(test_frames[2], 1, 512 +1024)
     framevalidator.validate(test_frames[5], 1, 512 + 1024 * 4)
-    assert "Out of order frame sequence: frame 4 directly after frame 0 and frame 1" in caplog.text
+    assert "Out of order frame sequence at 4608: frame 4 directly after frame 0 and frame 1" in caplog.text
 
     # test spacer validation
     spacer_bad = test_frames[7]
