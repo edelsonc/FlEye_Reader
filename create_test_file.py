@@ -24,12 +24,20 @@ def create_random_frame(frame_number):
         adc_values.append(p)
         adc_values += np.random.randint(0, 256, 3).tolist()
 
-    imu_data = np.random.randint(0,256, 40).tolist()
+    imu_data = imu_data_gen()
     padding = [0x00] * 8 * 17
     footer = [0xef] * 16
 
     frame = header + frame_number_bytes + tag_switch + spacer + adc_values + spacer + imu_data + padding + footer
     return frame
+
+
+def imu_data_gen():
+    first = np.random.randint(0, 256, 18).tolist()
+    second = np.random.randint(0, 256, 18).tolist()
+    check_sum1 = [byte for byte in sum(first).to_bytes(2, "big")]
+    check_sum2 = [byte for byte in sum(second).to_bytes(2, "big")]
+    return first + check_sum1 + second + check_sum2
 
 
 def create_random_data_file(n_frames=100):
