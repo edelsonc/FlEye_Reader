@@ -70,12 +70,6 @@ def test_FrameValidator_validate(delimiters, test_frames, random_bytes, tmpdir, 
     assert framevalidator.validate(file_opener, 49, 45) == False
     assert "Frame at 45 is wrong length: 540 bytes instead of 1024 bytes" in caplog.text
 
-    # test frame sequence validation
-    framevalidator.validate(test_frames[1], 1, 512)
-    framevalidator.validate(test_frames[2], 1, 512 +1024)
-    framevalidator.validate(test_frames[5], 1, 512 + 1024 * 4)
-    assert "Out of order frame sequence at 4608: frame 4 directly after frame 0 and frame 1" in caplog.text
-
     # test spacer validation
     spacer_bad = test_frames[7]
     spacer_bad = spacer_bad[:20] + b'\xbd' * 16 + spacer_bad[36:]
@@ -83,9 +77,23 @@ def test_FrameValidator_validate(delimiters, test_frames, random_bytes, tmpdir, 
     assert "Frame at 6656 has invalid spacer at block position 32" in caplog.text
 
     # TODO test checksum validation
+    bad_check_sum = test_frames[9]
+    bad_check_sum = bad_check_sum[:850] + b'\x00\x00' + bad_check_sum[852:]
+    assert framevalidator.validate(bad_check_sum, 1, 512 + 1024 * 9) == False
+    assert "Frame at 9728 has invalid check_sum" in caplog.text
+
     # test tag switch validation
     bad_tag = test_frames[8]
     bad_tag = bad_tag[:4] + b'\x0f' * 8 + b'\xff'*8 + bad_tag[20:]
     framevalidator.validate(bad_tag, 1, 512 + 1024 * 7)
     assert "Frame at 7680 has an invalid tag format" in caplog.text
+
+    # test frame sequence validation
+    framevalidator.validate(test_frames[1], 1, 512)
+    framevalidator.validate(test_frames[2], 1, 512 +1024)
+    framevalidator.validate(test_frames[5], 1, 512 + 1024 * 4)
+    assert "Out of order frame sequence at 4608: frame 4 directly after frame 0 and frame 1" in caplog.text
+
+    # finally validate a correct frame
+    assert framevalidator.validate(test_frames[6], 1, 512 + 1024 * 5)
 

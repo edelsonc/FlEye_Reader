@@ -59,11 +59,26 @@ class FrameValidator(object):
                 logging.warning(log_message)
                 return False
 
-        # TODO validate checksum is correct
         # validate tag switch values
         if frame[4:20] not in self.tags:
             log_message = "Frame at {} has an invalid tag format".format(byte_loc)
             logging.warning(log_message)
+
+        # validate checksum is correct
+        start_imu = 832 - header_len
+        end_imu = 872 - header_len
+        imu_data = frame[start_imu:end_imu] 
+
+        check_sum1_correct = sum(imu_data[:18])
+        check_sum2_correct = sum(imu_data[20:38])
+
+        check_sum1 = int.from_bytes(imu_data[18:20], "big")
+        check_sum2 = int.from_bytes(imu_data[38:], "big")
+
+        if check_sum1 != check_sum1_correct or check_sum2 != check_sum2_correct:
+            log_message = "Frame at {} has invalid check_sum".format(byte_loc)
+            logging.warning(log_message) 
+            return False
 
         # validate frame is next in sequence 
         frame_id = int.from_bytes(frame[:4], "big")
