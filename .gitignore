@@ -16,3 +16,4 @@ __pycache__
 
 # We have test data living in a data folder
 Data/
+Image/

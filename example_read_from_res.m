@@ -1,5 +1,6 @@
 % simple example script of how to read reformatted data into matlab
-data_file = fopen("d:SD2_reformatted2.bin");
+file_name = fullfile("C:", "Users", "cedelson", "Desktop", "SD_recordings", "SD3_reformatted.bin");
+data_file = fopen(file_name);
 datau32 = fread(data_file, '*uint32', 'b');
 data_matrix = reshape(datau32, 256, []);
 imu = data_matrix(195:end,:);
