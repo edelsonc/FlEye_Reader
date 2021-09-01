@@ -127,7 +127,7 @@ def get_run_id(sessions, frame_loc):
 @click.command()
 @click.argument('read_file')
 @click.argument('write_file')
-@click.option('--n_blocks', default=10**6, help='number of 512 byte blocks read into memeory in a single chunk')
+@click.option('--n_blocks', default=10**6, help='number of 512 byte blocks read into memory in a single chunk')
 def main(read_file, write_file, n_blocks):
     "Commandline program to validate and reformat data from the fly vision camera."
     #  creater an instance of Chunker with the read_file
@@ -153,6 +153,7 @@ def main(read_file, write_file, n_blocks):
     end_sessions = sessions[-1][1]
     byte_loc = 0
     while chunker.chunk_id != "END" and byte_loc < end_sessions:
+
         chunk_id, chunk, byte_loc = chunker.next_chunk()
         split_chunk = Chunker.split(chunk, byte_loc, configs["header"], configs["footer"])
         for frame_loc, frame in split_chunk:
