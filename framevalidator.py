@@ -22,13 +22,13 @@ class FrameValidator(object):
         self.footer = footer
         self.spacers = spacers
         self.current_frame = None
-        self.past_frame_ids = []
+        self.past_frame_ids = {}
         self.tags = [b'\x0f' * 16, b'\xff' * 16]
 
         logging.basicConfig(filename=log_file, format='%(asctime)s %(message)s', level=logging.DEBUG)
         logging.debug("FrameValidator initialized")
 
-    def validate(self, frame, chunk_id, byte_loc):
+    def validate(self, frame, chunk_id, byte_loc, run_id):
         """
         Method to validate is a provided frame from the camera stream is a
         valid format
@@ -40,6 +40,7 @@ class FrameValidator(object):
             Chunker.next_chunk
         byte_loc -- the byte location of the beginning of the frame in the
             raw data file
+        run_id -- ID for which recording session the camera is in
         """
         # validate frame is correct length                                               
         header_len = len(self.header)
@@ -81,15 +82,20 @@ class FrameValidator(object):
             return False
 
         # validate frame is next in sequence 
+        if run_id not in self.past_frame_ids:
+            self.past_frame_ids[run_id] = []
+            log_message = "Recording {} started at location {}".format(run_id, byte_loc)
+            logging.debug(log_message)
+
         frame_id = int.from_bytes(frame[:4], "big")
-        if self.past_frame_ids == []:
-            self.past_frame_ids = [-1, frame_id]
-        elif frame_id != self.past_frame_ids[1] + 1:
-            log_message = "Out of order frame sequence at {}: frame {} directly after frame {} and frame {}".format(byte_loc, frame_id, self.past_frame_ids[0], self.past_frame_ids[1])
+        if self.past_frame_ids[run_id] == []:
+            self.past_frame_ids[run_id] = [-1, frame_id]
+        elif frame_id != self.past_frame_ids[run_id][1] + 1:
+            log_message = "Out of order frame sequence at {}: frame {} directly after frame {} and frame {}".format(byte_loc, frame_id, self.past_frame_ids[run_id][0], self.past_frame_ids[run_id][1])
             logging.warning(log_message)
-            self.past_frame_ids[0], self.past_frame_ids[1] = self.past_frame_ids[1], frame_id
+            self.past_frame_ids[run_id][0], self.past_frame_ids[run_id][1] = self.past_frame_ids[run_id][1], frame_id
         else:
-            self.past_frame_ids[0], self.past_frame_ids[1] = self.past_frame_ids[1], frame_id
+            self.past_frame_ids[run_id][0], self.past_frame_ids[run_id][1] = self.past_frame_ids[run_id][1], frame_id
 
         return True
 

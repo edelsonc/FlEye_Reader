@@ -92,6 +92,6 @@ def test_FlEye_Reader_get_run_id():
     assert FlEye_Reader.get_run_id(sessions, 10) == 0
     assert FlEye_Reader.get_run_id(sessions, 210) == 2
     assert FlEye_Reader.get_run_id(sessions, -10) == -1
-    assert FlEye_Reader.get_run_id(sessions, 250) == None
+    assert FlEye_Reader.get_run_id(sessions, 251) == 0xAF
     assert FlEye_Reader.get_run_id(sessions, 200) == 1
 

@@ -123,6 +123,8 @@ def get_run_id(sessions, frame_loc):
                 return run_id
             run_id += 1
 
+    return 0xAF  # AF for after final
+
 
 @click.command()
 @click.argument('read_file')
@@ -158,9 +160,9 @@ def main(read_file, write_file, n_blocks):
         split_chunk = Chunker.split(chunk, byte_loc, configs["header"], configs["footer"])
         for frame_loc, frame in split_chunk:
 
-            validated = framevalidator.validate(frame, chunk_id, frame_loc)
+            run_id = get_run_id(sessions, frame_loc)
+            validated = framevalidator.validate(frame, chunk_id, frame_loc, run_id)
             if validated and frame_loc < end_sessions:
-                run_id = get_run_id(sessions, frame_loc)
                 framewriter.write(frame, run_id)
 
     chunker.close()
