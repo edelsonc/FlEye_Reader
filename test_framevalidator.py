@@ -54,7 +54,7 @@ def test_FrameValidator_incorrect_arguments(delimiters):
         framevalidator = FrameValidator()
 
 
-def test_FrameValidator_set_validate_checksum(delimiters, test_frames, random_bytes, tmpdir, caplog):
+def test_FrameValidator_set_validate_checksum(delimiters, test_frames, tmpdir, caplog):
     caplog.set_level(logging.DEBUG)
 
     # create a FrameValidator instance
@@ -63,6 +63,12 @@ def test_FrameValidator_set_validate_checksum(delimiters, test_frames, random_by
     framevalidator = FrameValidator(log_file, delimiters[0], delimiters[1], spacers, validate_checksum=False)
     assert "Checksum validation is off; IMU data is not validated" in caplog.text
 
+    # test checksum validation is off
+    bad_check_sum = test_frames[9]
+    bad_check_sum = bad_check_sum[:850] + b'\x00\x00' + bad_check_sum[852:]
+    assert framevalidator.validate(bad_check_sum, 1, 512 + 1024 * 9, 0)
+
+    # check logging when setting values and check for correct type
     framevalidator.set_validate_checksum(True)
     assert "Checksum validation is now set to:True" in caplog.text
 
