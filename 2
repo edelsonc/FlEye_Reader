@@ -15,7 +15,7 @@ class FrameValidator(object):
     frame_length -- size of an idividual in bytes *with* the frame 
         header/delimiter
     """
-    def __init__(self, log_file, header, footer, spacers, frame_length = 1024, validate_checksum=True):
+    def __init__(self, log_file, header, footer, spacers, frame_length = 1024):
         self.log_file = log_file
         self.frame_length = frame_length
         self.header = header
@@ -24,28 +24,11 @@ class FrameValidator(object):
         self.current_frame = None
         self.past_frame_ids = {}
         self.tags = [b'\x0f' * 16, b'\xff' * 16]
-        self.validate_checksum = validate_checksum
 
         logging.basicConfig(filename=log_file, format='%(asctime)s %(message)s', level=logging.DEBUG)
         logging.debug("FrameValidator initialized")
-        if not validate_checksum:        
-            logging.debug("Checksum validation is off; IMU data is not validated")
 
-    def set_validate_checksum(self, validate_checksum):
-        """
-        Small helper method to switch checksum validation on/off
-        
-        Arguments
-        ---------
-        validate_checksum -- boolean argument to set if checksum validation occurs
-        """
-        if not isinstance(validate_checksum, bool):
-            raise ValueError("validate_checksum flag must be a boolean")
-
-        self.validate_checksum = validate_checksum
-        logging.debug("Checksum validation is now set to:{}".format(str(validate_checksum)))
-
-    def validate(self, frame, chunk_id, byte_loc, run_id):
+    def validate(self, frame, chunk_id, byte_loc, run_id, validate_checksum = True):
         """
         Method to validate is a provided frame from the camera stream is a
         valid format
@@ -87,17 +70,16 @@ class FrameValidator(object):
         end_imu = 872 - header_len
         imu_data = frame[start_imu:end_imu] 
 
-        if self.validate_checksum:
-            check_sum1_correct = sum(imu_data[:18])
-            check_sum2_correct = sum(imu_data[20:38])
+        check_sum1_correct = sum(imu_data[:18])
+        check_sum2_correct = sum(imu_data[20:38])
 
-            check_sum1 = int.from_bytes(imu_data[18:20], "big")
-            check_sum2 = int.from_bytes(imu_data[38:], "big")
+        check_sum1 = int.from_bytes(imu_data[18:20], "big")
+        check_sum2 = int.from_bytes(imu_data[38:], "big")
 
-            if check_sum1 != check_sum1_correct or check_sum2 != check_sum2_correct:
-                log_message = "Frame at {} has invalid check_sum".format(byte_loc)
-                logging.warning(log_message) 
-                return False
+        if check_sum1 != check_sum1_correct or check_sum2 != check_sum2_correct:
+            log_message = "Frame at {} has invalid check_sum".format(byte_loc)
+            logging.warning(log_message) 
+            return False
 
         # validate frame is next in sequence 
         if run_id not in self.past_frame_ids:

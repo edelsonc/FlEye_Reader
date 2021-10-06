@@ -54,6 +54,22 @@ def test_FrameValidator_incorrect_arguments(delimiters):
         framevalidator = FrameValidator()
 
 
+def test_FrameValidator_set_validate_checksum(delimiters, test_frames, random_bytes, tmpdir, caplog):
+    caplog.set_level(logging.DEBUG)
+
+    # create a FrameValidator instance
+    log_file = tmpdir.join("test_validate.log")
+    spacers=[(32, 16, b'\x00'), (816, 16, b'\x00'), (872, 136, b'\x00')]
+    framevalidator = FrameValidator(log_file, delimiters[0], delimiters[1], spacers, validate_checksum=False)
+    assert "Checksum validation is off; IMU data is not validated" in caplog.text
+
+    framevalidator.set_validate_checksum(True)
+    assert "Checksum validation is now set to:True" in caplog.text
+
+    with pytest.raises(ValueError):
+        framevalidator.set_validate_checksum("cat")
+
+
 def test_FrameValidator_validate(delimiters, test_frames, random_bytes, tmpdir, caplog):
     caplog.set_level(logging.DEBUG)
 
