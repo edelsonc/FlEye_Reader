@@ -31,9 +31,11 @@ Usage: FlEye_Reader.py [OPTIONS] READ_FILE WRITE_FILE
   camera.
 
 Options:
-  --n_blocks INTEGER  Number of 512 byte blocks read into memory in a single
-                      chunk.
-  --help              Show this message and exit.
+  --n_blocks INTEGER          Number of 512 byte blocks read into memory in a single
+                              chunk.
+  --checksum / --no-checksum  Flag for whether the IMU checksums are validated
+                              for each frame.
+  --help                      Show this message and exit.
 ```
 
 # Reformatted Data
