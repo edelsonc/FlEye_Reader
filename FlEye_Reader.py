@@ -130,7 +130,8 @@ def get_run_id(sessions, frame_loc):
 @click.argument('read_file')
 @click.argument('write_file')
 @click.option('--n_blocks', default=10**6, help='Number of 512 byte blocks read into memory in a single chunk.')
-def main(read_file, write_file, n_blocks):
+@click.option('--checksum/--no-checksum', default=True, help='Flag for whether the IMU checksums are validated for each frame.')
+def main(read_file, write_file, n_blocks, checksum):
     "Commandline program to validate and reformat data from the fly vision camera."
     #  creater an instance of Chunker with the read_file
     try:
@@ -142,7 +143,7 @@ def main(read_file, write_file, n_blocks):
     # create log files for both FrameValidator and FrameWriter
     log_file = create_log_paths(read_file)
 
-    framevalidator = FrameValidator(log_file, configs["header"], configs["footer"], configs["spacers"])
+    framevalidator = FrameValidator(log_file, configs["header"], configs["footer"], configs["spacers"], validate_checksum=checksum)
     framewriter = FrameWriter(configs["unpack_string"], write_file, log_file)
 
     # scan through the file and determine where sessions are

@@ -14,8 +14,10 @@ class FrameValidator(object):
         bytes
     frame_length -- size of an idividual in bytes *with* the frame 
         header/delimiter
+    validate_checksum -- flag for if the FrameValidator instance will validate
+        IMU checksums or skip this part of the process
     """
-    def __init__(self, log_file, header, footer, spacers, frame_length = 1024, validate_checksum=True):
+    def __init__(self, log_file, header, footer, spacers, frame_length=1024, validate_checksum=True):
         self.log_file = log_file
         self.frame_length = frame_length
         self.header = header
@@ -24,12 +26,18 @@ class FrameValidator(object):
         self.current_frame = None
         self.past_frame_ids = {}
         self.tags = [b'\x0f' * 16, b'\xff' * 16]
+
+        if not isinstance(validate_checksum, bool):
+            raise ValueError("validate_checksum flag must be a boolean")
+            
         self.validate_checksum = validate_checksum
 
         logging.basicConfig(filename=log_file, format='%(asctime)s %(message)s', level=logging.DEBUG)
         logging.debug("FrameValidator initialized")
         if not validate_checksum:        
             logging.debug("Checksum validation is off; IMU data is not validated")
+        else:
+            logging.debug("Checksum validation is on; IMU data is validated")
 
     def set_validate_checksum(self, validate_checksum):
         """
