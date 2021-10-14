@@ -10,5 +10,4 @@ imu = imu(1:20,:);
 imui16 = typecast(uint16(imu(:)), 'int16');
 imui16 = reshape(imui16, 20, []);
 
-
 fclose(data_file);
