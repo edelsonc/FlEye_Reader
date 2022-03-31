@@ -9,7 +9,7 @@ from configurations import configs
 
 def create_log_paths(read_file):
     """
-    Helper function to setup two log files for the current run of the data
+    Helper function to setup log files for the current run of the data
     reading script.
     """
     logging_dir = Path(os.getcwd()) / "Log"
@@ -126,6 +126,31 @@ def get_run_id(sessions, frame_loc):
     return 0xAF  # AF for after final
 
 
+# TODO add unit testing of this function now that it's separated from `main`
+def parse_write_validate_FlEye_File(chunker, framevalidator, framewriter, sessions, configs):
+    """
+    Function which performs main reading, validating, and writing operations
+    for the script. Separated into it's own independent function to allow
+    quick return out of while loop.
+    """
+    end_sessions = sessions[-1][1]
+    byte_loc = 0
+    while chunker.chunk_id != "END" and byte_loc < end_sessions:
+
+        chunk_id, chunk, byte_loc = chunker.next_chunk()
+        split_chunk = Chunker.split(chunk, byte_loc, configs["header"], configs["footer"])
+        for frame_loc, frame in split_chunk:
+            
+            # stop parsing frames immediately after last valid session ends
+            if frame_loc > end_sessions:
+                return
+
+            run_id = get_run_id(sessions, frame_loc)
+            validated = framevalidator.validate(frame, chunk_id, frame_loc, run_id)
+            if validated and frame_loc < end_sessions:
+                framewriter.write(frame, run_id)
+
+
 @click.command()
 @click.argument('read_file')
 @click.argument('write_file')
@@ -153,19 +178,7 @@ def main(read_file, write_file, n_blocks, checksum):
     if sessions == []:
         raise ValueError("The selected read file has no valid sessions")
 
-    end_sessions = sessions[-1][1]
-    byte_loc = 0
-    while chunker.chunk_id != "END" and byte_loc < end_sessions:
-
-        chunk_id, chunk, byte_loc = chunker.next_chunk()
-        split_chunk = Chunker.split(chunk, byte_loc, configs["header"], configs["footer"])
-        for frame_loc, frame in split_chunk:
-
-            run_id = get_run_id(sessions, frame_loc)
-            validated = framevalidator.validate(frame, chunk_id, frame_loc, run_id)
-            if validated and frame_loc < end_sessions:
-                framewriter.write(frame, run_id)
-
+    parse_write_validate_FlEye_File(chunker, framevalidator, framewriter, sessions, configs)
     chunker.close()
     framewriter.close()
 
